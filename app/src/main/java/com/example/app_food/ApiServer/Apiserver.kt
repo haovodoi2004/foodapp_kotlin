@@ -27,4 +27,10 @@ interface Apiserver {
 
     @GET("new/getlistnew")
     suspend fun getnew(): List<New>
+<<<<<<< HEAD
+=======
+
+    @GET("product/getbyidproduct/{id}")
+    suspend fun getProbyid(@Path("id") id:String) : Response<Product>
+>>>>>>> 7730f44 (nguyen anh hao day code ngay 11/19/2024)
 }

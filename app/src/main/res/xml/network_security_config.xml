@@ -3,6 +3,10 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">192.168.2.2</domain>
         <domain includeSubdomains="true">10.24.44.142</domain>
+<<<<<<< HEAD
         <domain includeSubdomains="true">10.24.18.213</domain>
+=======
+        <domain includeSubdomains="true">10.24.24.197</domain>
+>>>>>>> 7730f44 (nguyen anh hao day code ngay 11/19/2024)
     </domain-config>
 </network-security-config>

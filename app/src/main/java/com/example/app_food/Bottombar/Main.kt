@@ -19,9 +19,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+<<<<<<< HEAD
 
 @Composable
 fun MainScreen() {
+=======
+import androidx.navigation.NavController
+
+@Composable
+fun MainScreen(navController: NavController) {
+>>>>>>> 7730f44 (nguyen anh hao day code ngay 11/19/2024)
     val navItemList = listOf(
         NavItem("Home", Icons.Default.Home),
         NavItem("Notification", Icons.Default.Notifications),
@@ -48,16 +55,26 @@ fun MainScreen() {
             }
         }
     ) { innerPadding ->
+<<<<<<< HEAD
         ContentScreen(modifier = Modifier.padding(innerPadding),selectedIdex)
+=======
+        ContentScreen(modifier = Modifier.padding(innerPadding),selectedIdex, navController = navController)
+>>>>>>> 7730f44 (nguyen anh hao day code ngay 11/19/2024)
     }
 
 
 }
 
 @Composable
+<<<<<<< HEAD
 fun ContentScreen(modifier: Modifier=Modifier,selectedIndex:Int){
     when(selectedIndex){
         0-> Home(onItemproclick = {})
+=======
+fun ContentScreen(modifier: Modifier=Modifier,selectedIndex:Int,navController: NavController){
+    when(selectedIndex){
+        0-> Home(navController)
+>>>>>>> 7730f44 (nguyen anh hao day code ngay 11/19/2024)
     }
 }
 

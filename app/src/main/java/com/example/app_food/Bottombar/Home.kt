@@ -72,6 +72,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.LocalLifecycleOwner
+<<<<<<< HEAD
+=======
+import androidx.navigation.NavController
+>>>>>>> 7730f44 (nguyen anh hao day code ngay 11/19/2024)
 import coil.compose.AsyncImage
 import com.example.app_food.Model.New
 import com.example.app_food.Model.Product
@@ -85,7 +89,11 @@ import kotlinx.coroutines.launch
 import retrofit2.Response
 
 @Composable
+<<<<<<< HEAD
 fun Home(onItemproclick:()->Unit) {
+=======
+fun Home(navController: NavController) {
+>>>>>>> 7730f44 (nguyen anh hao day code ngay 11/19/2024)
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -93,7 +101,11 @@ fun Home(onItemproclick:()->Unit) {
     ) {
         item { Search() }
         item { AutoImage() }
+<<<<<<< HEAD
         item { MainSc(onItemproclick = onItemproclick) }
+=======
+        item { ProtypeList(navController) }
+>>>>>>> 7730f44 (nguyen anh hao day code ngay 11/19/2024)
         item { Even() }
     }
 }
@@ -175,6 +187,7 @@ fun Even(viewModel: NewViewModel = NewViewModel()) {
 }
 
 
+<<<<<<< HEAD
 @Composable
 fun MainSc(viewModel: ProtypeViewModel = ProtypeViewModel(), view: ProViewModel = ProViewModel(),onItemproclick: () -> Unit) {
     // Trạng thái chọn loại sản phẩm
@@ -210,14 +223,72 @@ fun ProtypeList(viewModel: ProtypeViewModel, onProtypeSelected: (Protype) -> Uni
 
 @Composable
 fun ProductList(view: ProViewModel,onClickItem:()->Unit) {
+=======
+//@Composable
+//fun MainSc(navController: NavController,viewModel: ProtypeViewModel = ProtypeViewModel(), view: ProViewModel = ProViewModel()) {
+//    // Trạng thái chọn loại sản phẩm
+//    var selectedCategory by remember { mutableStateOf<Protype?>(null) }
+//    LaunchedEffect(Unit) {
+//        viewModel.fetchProtype()
+//    }
+//
+//    Column {
+//        ProtypeList() { protypeItem ->
+//            selectedCategory = protypeItem
+//            // Gọi hàm lấy sản phẩm theo loại
+//            view.getProBycategoryy(protypeItem.name)
+//        }
+//
+//        ProductList(navController,view)
+//    }
+//}
+
+@Composable
+fun ProtypeList(navController: NavController,viewModel: ProtypeViewModel=ProtypeViewModel(),view:ProViewModel=ProViewModel()) {
+    // Khởi chạy lấy danh sách các loại sản phẩm
+    val protypeItems by viewModel.protypeItems.observeAsState(initial = emptyList())
+
+    LaunchedEffect(Unit) {
+        if (protypeItems.isEmpty()) {
+            viewModel.fetchProtype()
+        }
+    }
+    var selectedCategory by remember { mutableStateOf<Protype?>(null) }
+    // Hiển thị các loại sản phẩm trong LazyRow
+    if (protypeItems.isEmpty()) {
+        Text("No categories available", modifier = Modifier.padding(16.dp))
+    } else {
+        LazyRow {
+            items(protypeItems) { protypeItem ->
+                ProtypeItem(protypeItem) {
+                    selectedCategory = protypeItem
+                    view.getProBycategoryy(protypeItem.name)
+                }
+            }
+        }
+    }
+
+    ProductList(navController,view)
+}
+
+@Composable
+fun ProductList(navController: NavController,view: ProViewModel=ProViewModel()) {
+>>>>>>> 7730f44 (nguyen anh hao day code ngay 11/19/2024)
     // Theo dõi dữ liệu từ view.proo và hiển thị danh sách sản phẩm
     val proList by view.proo.observeAsState(initial = Response.success(emptyList()))
 
     LazyRow(
+<<<<<<< HEAD
         modifier = Modifier.fillMaxWidth().clickable {  onClickItem}
     ) {
         items(proList.body() ?: emptyList()) { product ->
             ProductItem(product)
+=======
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        items(proList.body() ?: emptyList()) { product ->
+            ProductItem(product,navController)
+>>>>>>> 7730f44 (nguyen anh hao day code ngay 11/19/2024)
         }
     }
 }
@@ -239,9 +310,14 @@ fun ProtypeItem(protypeItem: Protype, onClick: () -> Unit) {
 }
 
 @Composable
+<<<<<<< HEAD
 fun ProductItem(product: Product) {
     val context = LocalContext.current
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+=======
+fun ProductItem(product: Product,navController: NavController) {
+    val context = LocalContext.current
+>>>>>>> 7730f44 (nguyen anh hao day code ngay 11/19/2024)
     val screenWith = LocalConfiguration.current.screenWidthDp.dp
 
     Card(
@@ -252,7 +328,12 @@ fun ProductItem(product: Product) {
         elevation = CardDefaults.elevatedCardElevation(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         onClick = {
+<<<<<<< HEAD
             Toast.makeText(context, "Đây là ${product.name}", Toast.LENGTH_LONG).show()
+=======
+            navController.navigate("productDetail/${product.id}")
+
+>>>>>>> 7730f44 (nguyen anh hao day code ngay 11/19/2024)
         }
     ) {
         Column() {
