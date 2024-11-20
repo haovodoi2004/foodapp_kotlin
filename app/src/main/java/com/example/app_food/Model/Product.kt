@@ -8,5 +8,6 @@ class Product (
     val price: Number,
     val avatar: String,
     val infor: String,
-    val category: String
+    val category: String,
+    val quantity:Number
 )

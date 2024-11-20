@@ -1,0 +1,23 @@
+[33md029dbb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m HEAD@{0}: reset: moving to d029dbb
+[33mb1f0a8e[m HEAD@{1}: reset: moving to b1f0a8e
+[33mf1e00fb[m HEAD@{2}: reset: moving to f1e00fb
+[33m19c50df[m[33m ([m[1;31morigin/master[m[33m)[m HEAD@{3}: reset: moving to 19c50df
+[33m5164a61[m HEAD@{4}: reset: moving to 5164a61
+[33m7730f44[m HEAD@{5}: reset: moving to 7730f44
+[33md9021de[m HEAD@{6}: reset: moving to d9021de
+[33md9021de[m HEAD@{7}: commit (amend): nguyen anh hao day code ngay 11/19/2024
+[33m7730f44[m HEAD@{8}: reset: moving to 7730f44
+[33m5164a61[m HEAD@{9}: reset: moving to 5164a61
+[33mf1e00fb[m HEAD@{10}: reset: moving to f1e00fb
+[33m19c50df[m[33m ([m[1;31morigin/master[m[33m)[m HEAD@{11}: reset: moving to 19c50df
+[33m19c50df[m[33m ([m[1;31morigin/master[m[33m)[m HEAD@{12}: reset: moving to 19c50df
+[33m19c50df[m[33m ([m[1;31morigin/master[m[33m)[m HEAD@{13}: rebase (finish): returning to refs/heads/master
+[33m19c50df[m[33m ([m[1;31morigin/master[m[33m)[m HEAD@{14}: rebase (start): checkout origin/master
+[33mf1e00fb[m HEAD@{15}: commit (amend): nguyen anh hao day code ngay 11/19/2024
+[33m19c50df[m[33m ([m[1;31morigin/master[m[33m)[m HEAD@{16}: rebase (finish): returning to refs/heads/master
+[33m19c50df[m[33m ([m[1;31morigin/master[m[33m)[m HEAD@{17}: rebase (continue): nguyen anh hao day code ngay 11/19/2024
+[33m5164a61[m HEAD@{18}: rebase (start): checkout origin/master
+[33m7730f44[m HEAD@{19}: commit (amend): nguyen anh hao day code ngay 11/19/2024
+[33md029dbb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m HEAD@{20}: commit (amend): nguyen anh hao day code ngay 11/18/2024
+[33m5164a61[m HEAD@{21}: commit (amend): nguyen anh hao day code ngay 11/15/2024
+[33mb1f0a8e[m HEAD@{22}: commit (initial): nguyen anh hao day code ngay 11/15/2024

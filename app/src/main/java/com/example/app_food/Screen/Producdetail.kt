@@ -1,7 +1,9 @@
 package com.example.app_food.Screen
 
 import android.app.AlertDialog
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,7 +52,13 @@ import com.example.app_food.R
 import com.example.app_food.ViewModel.ProViewModel
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import com.example.app_food.Model.Oder
+import com.example.app_food.ViewModel.OderViewModel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProductDetail(
     navController: NavController,
@@ -171,6 +179,7 @@ fun ProductDetail(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ShowDialog(
     showDialog: Boolean,
@@ -181,24 +190,32 @@ fun ShowDialog(
     val product by viewModel.product.observeAsState()
     val context = LocalContext.current
     val show = remember { mutableStateOf(false) }
+    var productQuantity by remember { mutableStateOf(0) }
+    var proid by remember { mutableStateOf("") }
+    val formattedDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+
     LaunchedEffect(pro) {
         viewModel.getProById(pro)
+        product?.let {
+            productQuantity = it.quantity.toInt() // Lưu số lượng sản phẩm
+
+        }
     }
     if (showDialog) {
         var name by remember { mutableStateOf("") }
         var address by remember { mutableStateOf("") }
         var phone by remember { mutableStateOf("") }
-        var avatar by remember { mutableStateOf("") }
         var quantity by remember { mutableStateOf(0) }
-        var price by remember { mutableStateOf(0) }
         var all by remember { mutableStateOf(0) }
+        var price by remember { mutableStateOf(0) }
         AlertDialog(
             onDismissRequest = onDismiss,
             title = { Text(text = "Điền thông tin mua hàng") },
             text = {
                 product?.let { prod ->
                     Column {
-                        var quantity by remember { mutableStateOf(0) }
+                        proid=prod.id
+                        price=prod.price.toInt()
                         AsyncImage(model = prod.avatar, contentDescription = "")
                         OutlinedTextField(
                             value = name,
@@ -209,13 +226,13 @@ fun ShowDialog(
                         OutlinedTextField(
                             value = address,
                             onValueChange = { address = it },
-                            label = { Text(text = "họ và tên") },
+                            label = { Text(text = "Địa chỉ nhập hàng") },
                             modifier = Modifier.fillMaxWidth(0.8f)
                         )
                         OutlinedTextField(
                             value = phone,
                             onValueChange = { phone = it },
-                            label = { Text(text = "họ và tên") },
+                            label = { Text(text = "Số điện thoại") },
                             modifier = Modifier.fillMaxWidth(0.8f)
                         )
                         Row( verticalAlignment = Alignment.CenterVertically,
@@ -232,15 +249,36 @@ fun ShowDialog(
                             }
                             Text(text = "${quantity}", fontSize = 20.sp,
                                 modifier = Modifier.padding(horizontal = 16.dp))
-                            IconButton(onClick = {quantity++}) {
+                            IconButton(onClick = {
+                                if(quantity < prod.quantity.toInt()){
+                                    quantity++
+                                }else{
+                                    Toast.makeText(context,"Đã đạt giới hạn số lượng sản phẩm tối đa là  ${productQuantity}",Toast.LENGTH_LONG).show()
+                                }
+
+                            }) {
                                 Icon(imageVector = Icons.Default.Add, contentDescription = "", modifier = Modifier.size(30.dp))
                             }
+
+                            Text("Tổng giá là ${quantity*prod.price.toInt()}")
                         }
                     }
                 }
             },
             confirmButton = {
-                Button(onClick = onDismiss) {
+                Button(onClick = {
+                    if(name.isBlank()||phone.isBlank()||address.isBlank()){
+                        Toast.makeText(context,"vui lòng điền đầy đủ thông tin",Toast.LENGTH_SHORT).show()
+                    }else{
+                        if(quantity==0){
+                            Toast.makeText(context,"Bạn phải mua ít nhất 1 sản phẩm",Toast.LENGTH_SHORT).show()
+                        }else{
+                            OderPro(name,phone,proid,quantity,quantity*price,address,0,formattedDateTime)
+                        }
+                    }
+
+                    onDismiss()
+                }) {
                     Text(text = "OK")
                 }
             },
@@ -251,4 +289,12 @@ fun ShowDialog(
             }
         )
     }
+}
+
+
+fun OderPro(name:String,phone:String,idpro:String,quantity:Int,all:Int,address:String,status:Int,date:String,viewModel: OderViewModel= OderViewModel()){
+
+    val oder=Oder(name = name,phone=phone, id_pro = idpro, quantity = quantity.toInt(), all = all, address = address, status = status.toInt(),date=date)
+    viewModel.addOder(oder)
+
 }

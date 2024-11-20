@@ -1,6 +1,7 @@
 package com.example.app_food.ApiServer
 
 import com.example.app_food.Model.New
+import com.example.app_food.Model.Oder
 import com.example.app_food.Model.Product
 import com.example.app_food.Model.Protype
 import com.example.app_food.Model.User
@@ -30,4 +31,7 @@ interface Apiserver {
 
     @GET("product/getbyidproduct/{id}")
     suspend fun getProbyid(@Path("id") id:String) : Response<Product>
+
+    @POST("oder/addoder")
+    suspend fun addoder(@Body oder:Oder) : Response<Oder>
 }
