@@ -175,26 +175,6 @@ fun Even(viewModel: NewViewModel = NewViewModel()) {
     }
 }
 
-
-//@Composable
-//fun MainSc(navController: NavController,viewModel: ProtypeViewModel = ProtypeViewModel(), view: ProViewModel = ProViewModel()) {
-//    // Trạng thái chọn loại sản phẩm
-//    var selectedCategory by remember { mutableStateOf<Protype?>(null) }
-//    LaunchedEffect(Unit) {
-//        viewModel.fetchProtype()
-//    }
-//
-//    Column {
-//        ProtypeList() { protypeItem ->
-//            selectedCategory = protypeItem
-//            // Gọi hàm lấy sản phẩm theo loại
-//            view.getProBycategoryy(protypeItem.name)
-//        }
-//
-//        ProductList(navController,view)
-//    }
-//}
-
 @Composable
 fun ProtypeList(navController: NavController,viewModel: ProtypeViewModel=ProtypeViewModel(),view:ProViewModel=ProViewModel()) {
     // Khởi chạy lấy danh sách các loại sản phẩm

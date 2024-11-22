@@ -4,12 +4,15 @@ import com.example.app_food.Model.New
 import com.example.app_food.Model.Oder
 import com.example.app_food.Model.Product
 import com.example.app_food.Model.Protype
+import com.example.app_food.Model.Shopcart
 import com.example.app_food.Model.User
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -34,4 +37,22 @@ interface Apiserver {
 
     @POST("oder/addoder")
     suspend fun addoder(@Body oder:Oder) : Response<Oder>
+
+    @POST("shopcart/addshopcart")
+    suspend fun addshopcart(@Body shopcart: Shopcart) : Response<Shopcart>
+
+    @GET("shopcart/getlistshopcart")
+    suspend fun getlistshopcart(): List<Shopcart>
+
+    @PUT("resource/{id}")
+    suspend fun updateData(
+        @Path("id") id: String,
+        @Body shopcart: Shopcart
+    ): Response<Shopcart>
+
+    @PATCH("resource/{id}")
+    suspend fun patchData(
+        @Path("id") id: String,
+        @Body partialData: Map<String, Any>
+    ): Response<Shopcart>
 }

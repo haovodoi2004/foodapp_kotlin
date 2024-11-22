@@ -2,8 +2,10 @@ package com.example.app_food.Screen
 
 import android.app.AlertDialog
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,10 +27,13 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,12 +57,18 @@ import com.example.app_food.R
 import com.example.app_food.ViewModel.ProViewModel
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.lifecycle.Observer
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.app_food.Model.Oder
+import com.example.app_food.Model.Shopcart
 import com.example.app_food.ViewModel.OderViewModel
+import com.example.app_food.ViewModel.ShopcartViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProductDetail(
@@ -68,6 +79,8 @@ fun ProductDetail(
     val product by viewModel.product.observeAsState()
     val context = LocalContext.current
     val show = remember { mutableStateOf(false) }
+    var bottomshettshow by remember { mutableStateOf(false) }
+
     LaunchedEffect(produc) {
         viewModel.getProById(produc)
         Toast.makeText(context, "id sản phẩm là ${produc}", Toast.LENGTH_SHORT).show()
@@ -107,7 +120,9 @@ fun ProductDetail(
                     )
                 }
                 IconButton(
-                    onClick = {},
+                    onClick = {
+                            bottomshettshow = true // Cập nhật trạng thái mở
+                    },
                     modifier = Modifier
                         .padding(16.dp)
                         .align(Alignment.TopEnd)
@@ -119,6 +134,11 @@ fun ProductDetail(
                         tint = Color.White,
                         modifier = Modifier.size(30.dp)
                     )
+                }
+            }
+            if(bottomshettshow){
+                shopcart(prod.avatar,prod.name,prod.quantity,produc,prod.price){
+                 bottomshettshow = false
                 }
             }
 
@@ -293,8 +313,120 @@ fun ShowDialog(
 
 
 fun OderPro(name:String,phone:String,idpro:String,quantity:Int,all:Int,address:String,status:Int,date:String,viewModel: OderViewModel= OderViewModel()){
-
     val oder=Oder(name = name,phone=phone, id_pro = idpro, quantity = quantity.toInt(), all = all, address = address, status = status.toInt(),date=date)
     viewModel.addOder(oder)
-
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun  shopcart(avatar : String,name : String,quantity : Number,proid : String,price : Number,viewModel: ShopcartViewModel=ShopcartViewModel(),onDismiss: () -> Unit) {
+    val sheetState = rememberModalBottomSheetState()
+    var issheetopen by rememberSaveable {
+        mutableStateOf(true)
+    }
+    var sl by remember { mutableStateOf(0) }
+    val context = LocalContext.current
+    val shopcartItems by viewModel.ShopcartItems.observeAsState(emptyList())
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    if (issheetopen) {
+        ModalBottomSheet(
+            onDismissRequest = { issheetopen = false
+                               onDismiss()},
+            sheetState = sheetState
+        ) {
+            // Nội dung của BottomSheet
+            Row {
+                AsyncImage(
+                    model = avatar,
+                    contentDescription = "",
+                    modifier = Modifier.fillMaxWidth(0.3f)
+                )
+                Column {
+                    Text(text = "${name}", fontSize = 30.sp)
+                    Text(text = "Số lượng còn : ${quantity}", fontSize = 20.sp)
+                }
+            }
+
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = {
+                    if (sl == 0) {
+                        Toast.makeText(context, "Đã đạt số lương giảm tối đa", Toast.LENGTH_SHORT)
+                            .show()
+                    } else {
+                        sl--
+                    }
+                }) {
+                    Image(
+                        painter = painterResource(R.drawable.minus),
+                        contentDescription = "",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Text(text = "${sl}")
+                IconButton(onClick = {
+                    if (sl == quantity.toInt()) {
+                        Toast.makeText(
+                            context,
+                            "Đã đạt số lương tối đa có thể mua",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        sl++
+                    }
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "",
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+            }
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    contentColor = Color.White,
+                    containerColor = Color(
+                        0xFFF55928
+                    ),
+                ), onClick = {
+                    Log.d("Debug", "ShopcartItems size: ${shopcartItems.size}")
+
+                    shopcartItems.forEach{
+                        shopcart->
+//                        if(proid==shopcart.idpro){
+//                            Toast.makeText(context,"bằng nhau rồi ",Toast.LENGTH_SHORT).show()
+//                        }
+//                        Toast.makeText(context,"${proid} và ${shopcart.idpro}",Toast.LENGTH_SHORT).show()
+//                        if(proid==shopcart.idpro){
+//                            viewModel.updateResponse.observe(lifecycleOwner, Observer { response ->
+//                                if (response != null && response.isSuccessful) {
+//                                    Toast.makeText(context, "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
+//                                } else {
+//                                    Toast.makeText(context, "Cập nhật thất bại!", Toast.LENGTH_SHORT).show()
+//                                }
+//                            })
+//
+//                            val shopcart = Shopcart(proid, shopcart.quantity.toInt()+quantity.toInt(), price.toInt() * quantity.toInt())
+//                            viewModel.updateData(proid, shopcart)
+//                        }else{
+//                            val shopcart = Shopcart(proid, quantity, price.toInt() * quantity.toInt())
+//                            viewModel.addshopcart(shopcart)
+//                            issheetopen=false
+////                            Toast.makeText(context,"${proid} và ${shopcart.idpro}",Toast.LENGTH_SHORT).show()
+//                        }
+                        Log.d("Debug", "proid: $proid, shopcart.idpro: ${shopcart.idpro}")
+
+                    }
+                }, modifier = Modifier
+                    .fillMaxWidth(0.7f)
+            ) {
+                Text(text = "Mua hàng")
+            }
+        }
+    }
+}
+
+
