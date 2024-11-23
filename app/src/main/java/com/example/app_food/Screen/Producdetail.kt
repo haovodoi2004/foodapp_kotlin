@@ -121,7 +121,7 @@ fun ProductDetail(
                 }
                 IconButton(
                     onClick = {
-                            bottomshettshow = true // Cập nhật trạng thái mở
+                        bottomshettshow = true // Cập nhật trạng thái mở
                     },
                     modifier = Modifier
                         .padding(16.dp)
@@ -136,9 +136,9 @@ fun ProductDetail(
                     )
                 }
             }
-            if(bottomshettshow){
-                shopcart(prod.avatar,prod.name,prod.quantity,produc,prod.price){
-                 bottomshettshow = false
+            if (bottomshettshow) {
+                shopcart(prod.avatar, prod.name, prod.quantity, produc, prod.price) {
+                    bottomshettshow = false
                 }
             }
 
@@ -205,14 +205,15 @@ fun ShowDialog(
     showDialog: Boolean,
     onDismiss: () -> Unit,
     pro: String,
-    viewModel: ProViewModel=ProViewModel()
+    viewModel: ProViewModel = ProViewModel()
 ) {
     val product by viewModel.product.observeAsState()
     val context = LocalContext.current
     val show = remember { mutableStateOf(false) }
     var productQuantity by remember { mutableStateOf(0) }
     var proid by remember { mutableStateOf("") }
-    val formattedDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+    val formattedDateTime =
+        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 
     LaunchedEffect(pro) {
         viewModel.getProById(pro)
@@ -234,8 +235,8 @@ fun ShowDialog(
             text = {
                 product?.let { prod ->
                     Column {
-                        proid=prod.id
-                        price=prod.price.toInt()
+                        proid = prod.id
+                        price = prod.price.toInt()
                         AsyncImage(model = prod.avatar, contentDescription = "")
                         OutlinedTextField(
                             value = name,
@@ -255,45 +256,82 @@ fun ShowDialog(
                             label = { Text(text = "Số điện thoại") },
                             modifier = Modifier.fillMaxWidth(0.8f)
                         )
-                        Row( verticalAlignment = Alignment.CenterVertically,
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding(16.dp)) {
+                            modifier = Modifier.padding(16.dp)
+                        ) {
                             IconButton(onClick = {
-                                if(quantity==0){
-                                    Toast.makeText(context,"Đã đạt số lượng giảm tối đa",Toast.LENGTH_SHORT).show()
-                                }else{
+                                if (quantity == 0) {
+                                    Toast.makeText(
+                                        context,
+                                        "Đã đạt số lượng giảm tối đa",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
                                     quantity--
                                 }
                             }) {
-                                Icon(painter = painterResource(R.drawable.minus), contentDescription = "", modifier = Modifier.size(20.dp))
+                                Icon(
+                                    painter = painterResource(R.drawable.minus),
+                                    contentDescription = "",
+                                    modifier = Modifier.size(20.dp)
+                                )
                             }
-                            Text(text = "${quantity}", fontSize = 20.sp,
-                                modifier = Modifier.padding(horizontal = 16.dp))
+                            Text(
+                                text = "${quantity}", fontSize = 20.sp,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
                             IconButton(onClick = {
-                                if(quantity < prod.quantity.toInt()){
+                                if (quantity < prod.quantity.toInt()) {
                                     quantity++
-                                }else{
-                                    Toast.makeText(context,"Đã đạt giới hạn số lượng sản phẩm tối đa là  ${productQuantity}",Toast.LENGTH_LONG).show()
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Đã đạt giới hạn số lượng sản phẩm tối đa là  ${productQuantity}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
                                 }
 
                             }) {
-                                Icon(imageVector = Icons.Default.Add, contentDescription = "", modifier = Modifier.size(30.dp))
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "",
+                                    modifier = Modifier.size(30.dp)
+                                )
                             }
 
-                            Text("Tổng giá là ${quantity*prod.price.toInt()}")
+                            Text("Tổng giá là ${quantity * prod.price.toInt()}")
                         }
                     }
                 }
             },
             confirmButton = {
                 Button(onClick = {
-                    if(name.isBlank()||phone.isBlank()||address.isBlank()){
-                        Toast.makeText(context,"vui lòng điền đầy đủ thông tin",Toast.LENGTH_SHORT).show()
-                    }else{
-                        if(quantity==0){
-                            Toast.makeText(context,"Bạn phải mua ít nhất 1 sản phẩm",Toast.LENGTH_SHORT).show()
-                        }else{
-                            OderPro(name,phone,proid,quantity,quantity*price,address,0,formattedDateTime)
+                    if (name.isBlank() || phone.isBlank() || address.isBlank()) {
+                        Toast.makeText(
+                            context,
+                            "vui lòng điền đầy đủ thông tin",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        if (quantity == 0) {
+                            Toast.makeText(
+                                context,
+                                "Bạn phải mua ít nhất 1 sản phẩm",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            OderPro(
+                                name,
+                                phone,
+                                proid,
+                                quantity,
+                                quantity * price,
+                                address,
+                                0,
+                                formattedDateTime
+                            )
                         }
                     }
 
@@ -312,27 +350,61 @@ fun ShowDialog(
 }
 
 
-fun OderPro(name:String,phone:String,idpro:String,quantity:Int,all:Int,address:String,status:Int,date:String,viewModel: OderViewModel= OderViewModel()){
-    val oder=Oder(name = name,phone=phone, id_pro = idpro, quantity = quantity.toInt(), all = all, address = address, status = status.toInt(),date=date)
+fun OderPro(
+    name: String,
+    phone: String,
+    idpro: String,
+    quantity: Int,
+    all: Int,
+    address: String,
+    status: Int,
+    date: String,
+    viewModel: OderViewModel = OderViewModel()
+) {
+    val oder = Oder(
+        name = name,
+        phone = phone,
+        id_pro = idpro,
+        quantity = quantity.toInt(),
+        all = all,
+        address = address,
+        status = status.toInt(),
+        date = date
+    )
     viewModel.addOder(oder)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun  shopcart(avatar : String,name : String,quantity : Number,proid : String,price : Number,viewModel: ShopcartViewModel=ShopcartViewModel(),onDismiss: () -> Unit) {
+fun shopcart(
+    avatar: String,
+    name: String,
+    quantity: Number,
+    proid: String,
+    price: Number,
+    viewModel: ShopcartViewModel = ShopcartViewModel(),
+    onDismiss: () -> Unit
+) {
     val sheetState = rememberModalBottomSheetState()
     var issheetopen by rememberSaveable {
         mutableStateOf(true)
     }
     var sl by remember { mutableStateOf(0) }
     val context = LocalContext.current
-    val shopcartItems by viewModel.ShopcartItems.observeAsState(emptyList())
+    val shopcartItems by viewModel.ShopcartItems.observeAsState(initial = emptyList())
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    LaunchedEffect(Unit) {
+        if (shopcartItems.isEmpty()) {
+            viewModel.fetchShopcart()
+        }
+    }
     if (issheetopen) {
         ModalBottomSheet(
-            onDismissRequest = { issheetopen = false
-                               onDismiss()},
+            onDismissRequest = {
+                issheetopen = false
+                onDismiss()
+            },
             sheetState = sheetState
         ) {
             // Nội dung của BottomSheet
@@ -394,31 +466,62 @@ fun  shopcart(avatar : String,name : String,quantity : Number,proid : String,pri
                 ), onClick = {
                     Log.d("Debug", "ShopcartItems size: ${shopcartItems.size}")
 
-                    shopcartItems.forEach{
-                        shopcart->
-//                        if(proid==shopcart.idpro){
-//                            Toast.makeText(context,"bằng nhau rồi ",Toast.LENGTH_SHORT).show()
-//                        }
-//                        Toast.makeText(context,"${proid} và ${shopcart.idpro}",Toast.LENGTH_SHORT).show()
-//                        if(proid==shopcart.idpro){
-//                            viewModel.updateResponse.observe(lifecycleOwner, Observer { response ->
-//                                if (response != null && response.isSuccessful) {
-//                                    Toast.makeText(context, "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
-//                                } else {
-//                                    Toast.makeText(context, "Cập nhật thất bại!", Toast.LENGTH_SHORT).show()
-//                                }
-//                            })
-//
-//                            val shopcart = Shopcart(proid, shopcart.quantity.toInt()+quantity.toInt(), price.toInt() * quantity.toInt())
-//                            viewModel.updateData(proid, shopcart)
-//                        }else{
-//                            val shopcart = Shopcart(proid, quantity, price.toInt() * quantity.toInt())
-//                            viewModel.addshopcart(shopcart)
-//                            issheetopen=false
-////                            Toast.makeText(context,"${proid} và ${shopcart.idpro}",Toast.LENGTH_SHORT).show()
-//                        }
-                        Log.d("Debug", "proid: $proid, shopcart.idpro: ${shopcart.idpro}")
+                    if (sl.toInt() == 0) {
+                        Toast.makeText(
+                            context,
+                            "Bạn hãy chọn số lượng sản phẩm muốn mua",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        if (shopcartItems.size == 0) {
+                            val shopcart = Shopcart(proid, sl.toInt(), price.toInt() * sl.toInt())
+                            viewModel.addshopcart(shopcart)
+                            issheetopen = false
+                            onDismiss()
+                        } else {
 
+
+                            shopcartItems.forEach { shopcart ->
+
+                                if (proid == shopcart.idpro) {
+                                    viewModel.updateResponse.observe(
+                                        lifecycleOwner,
+                                        Observer { response ->
+                                            if (response != null && response.isSuccessful) {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Cập nhật thành công!",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            } else {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Cập nhật thất bại!",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        })
+
+                                    val shopcart = Shopcart(
+                                        proid,
+                                        shopcart.quantity.toInt() + sl.toInt(),
+                                        price.toInt() + sl.toInt() * price.toInt()
+                                    )
+                                    viewModel.updateData(proid, shopcart)
+                                    issheetopen = false
+                                    onDismiss()
+                                } else {
+                                    val shopcart =
+                                        Shopcart(proid, sl.toInt(), price.toInt() * sl.toInt())
+                                    viewModel.addshopcart(shopcart)
+                                    issheetopen = false
+                                    onDismiss()
+//                            Toast.makeText(context,"${proid} và ${shopcart.idpro}",Toast.LENGTH_SHORT).show()
+                                }
+                                Log.d("Debug", "proid: $proid, shopcart.idpro: ${shopcart.idpro}")
+
+                            }
+                        }
                     }
                 }, modifier = Modifier
                     .fillMaxWidth(0.7f)

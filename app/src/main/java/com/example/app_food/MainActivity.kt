@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
     fun AppNavigation(){
         val navController= rememberNavController()
         val context= LocalContext.current
-        NavHost(navController=navController, startDestination = "home") {
+        NavHost(navController=navController, startDestination = "main") {
             composable("signin"){
                 Sigin(userViewModel = userViewModel,onSignupClick={
                     navController.navigate("signup")

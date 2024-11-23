@@ -44,15 +44,15 @@ interface Apiserver {
     @GET("shopcart/getlistshopcart")
     suspend fun getlistshopcart(): List<Shopcart>
 
-    @PUT("resource/{id}")
+    @PUT("shopcart/editshopcart/{idpro}")
     suspend fun updateData(
-        @Path("id") id: String,
+        @Path("idpro") idpro: String,
         @Body shopcart: Shopcart
     ): Response<Shopcart>
 
-    @PATCH("resource/{id}")
-    suspend fun patchData(
-        @Path("id") id: String,
-        @Body partialData: Map<String, Any>
-    ): Response<Shopcart>
+//    @PATCH("/{idpro}")
+//    suspend fun patchData(
+//        @Path("idpro") idpro: String,
+//        @Body partialData: Map<String, Any>
+//    ): Response<Shopcart>
 }

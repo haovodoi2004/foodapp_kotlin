@@ -45,10 +45,10 @@ class ShopcartViewModel : ViewModel() {
         }
     }
 
-    fun updateData(id: String, shopcart: Shopcart) {
+    fun updateData(idpro: String, shopcart: Shopcart) {
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.api.updateData(id, shopcart)
+                val response = RetrofitInstance.api.updateData(idpro, shopcart)
                 if (response.isSuccessful) {
                     updateResponse.postValue(response)
                 } else {
