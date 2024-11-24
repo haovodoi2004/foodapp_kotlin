@@ -48,6 +48,9 @@ import com.example.app_food.ViewModel.ProViewModel
 import com.example.app_food.ViewModel.ShopcartViewModel
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.Observer
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.app_food.Model.Product
 
 @Composable
 fun Shopcart(navController: NavController,viewModel: ShopcartViewModel= ShopcartViewModel()){
@@ -75,7 +78,7 @@ fun Shopcart(navController: NavController,viewModel: ShopcartViewModel= Shopcart
 }
 
 @Composable
-fun ShopCartItem(shopcart: Shopcart,viewModel: ProViewModel= ProViewModel()){
+fun ShopCartItem(shopcart: Shopcart,viewModel: ProViewModel= ProViewModel(),viewModelshopcart: ShopcartViewModel=ShopcartViewModel()){
     val pro by viewModel.product.observeAsState()
     val context = LocalContext.current
     LaunchedEffect(shopcart.idpro) {
@@ -85,6 +88,7 @@ fun ShopCartItem(shopcart: Shopcart,viewModel: ProViewModel= ProViewModel()){
     val screeenWeight= LocalConfiguration.current.screenWidthDp.dp
     var sl by remember { mutableStateOf(0) }
     var show by remember { mutableStateOf(false) }
+    var showUpdateShopcart by remember { mutableStateOf(false) }
     pro?.let{pr->
         Card(
             modifier = Modifier
@@ -109,8 +113,10 @@ fun ShopCartItem(shopcart: Shopcart,viewModel: ProViewModel= ProViewModel()){
                             if(sl+shopcart.quantity.toInt()==0){
                                 Toast.makeText(context,"Đã đạt đến mưcs giảm tối đa",Toast.LENGTH_SHORT).show()
                             }else{
-                                shopcart.quantity.toInt() + sl
+                                showUpdateShopcart=true
+
                             }
+
                         }) {
                             Icon(painter = painterResource(R.drawable.minus), contentDescription = "")
                         }
@@ -137,6 +143,10 @@ fun ShopCartItem(shopcart: Shopcart,viewModel: ProViewModel= ProViewModel()){
                         OpenDialogShop (show = true, onDissMiss = {show=false})
                     }
                 }
+            if(showUpdateShopcart){
+                UpdateShopcart(pr,shopcart,sl)
+                showUpdateShopcart=false
+            }
             }
         }
     }
@@ -153,4 +163,20 @@ fun OpenDialogShop(show: Boolean, onDissMiss: () -> Unit) {
         },
         confirmButton = {},
         dismissButton = {})
+}
+
+@Composable
+fun UpdateShopcart(pro : Product,shopcart : Shopcart,sl : Int,viewModel: ShopcartViewModel= ShopcartViewModel()){
+    val lifecycle = LocalLifecycleOwner.current
+    shopcart.quantity.toInt() + sl
+    viewModel.updateResponse.observe(lifecycle, Observer {
+            respone->
+        if(respone!=null && respone.isSuccessful){
+
+        }else{
+
+        }
+    })
+    val shopcart= Shopcart(shopcart.idpro,sl+shopcart.quantity.toInt(),(sl+shopcart.quantity.toInt())*pro.price.toInt())
+    viewModel.updateData(pro.id,shopcart)
 }
