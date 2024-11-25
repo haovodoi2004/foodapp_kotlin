@@ -1,17 +1,21 @@
 package com.example.app_food.Bottombar
 
 import android.app.AlertDialog
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,11 +24,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,8 +59,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.app_food.Model.Oder
 import com.example.app_food.Model.Product
+import com.example.app_food.Screen.OderPro
+import com.example.app_food.ViewModel.OderViewModel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Shopcart(navController: NavController,viewModel: ShopcartViewModel= ShopcartViewModel()){
     val shopcartitems by viewModel.ShopcartItems.observeAsState(initial = emptyList())
@@ -77,6 +92,7 @@ fun Shopcart(navController: NavController,viewModel: ShopcartViewModel= Shopcart
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ShopCartItem(shopcart: Shopcart,viewModel: ProViewModel= ProViewModel(),viewModelshopcart: ShopcartViewModel=ShopcartViewModel()){
     val pro by viewModel.product.observeAsState()
@@ -89,6 +105,7 @@ fun ShopCartItem(shopcart: Shopcart,viewModel: ProViewModel= ProViewModel(),view
     var sl by remember { mutableStateOf(0) }
     var show by remember { mutableStateOf(false) }
     var showUpdateShopcart by remember { mutableStateOf(false) }
+
     pro?.let{pr->
         Card(
             modifier = Modifier
@@ -101,20 +118,22 @@ fun ShopCartItem(shopcart: Shopcart,viewModel: ProViewModel= ProViewModel(),view
         ){
 
         Row(){
+            var allprice by remember { mutableStateOf(pr.price.toInt()*(sl+shopcart.quantity.toInt())) }
                 AsyncImage(model = pr.avatar, contentDescription = "", modifier = Modifier
                     .height(screenHeight * 0.15f)
                     .width(screeenWeight * 0.3f), contentScale = ContentScale.Crop)
                 Column() {
                     Text(text = pr.name)
-                    Text(text = (pr.price.toInt()*shopcart.quantity.toInt()).toString())
+                    Text(text = allprice.toString())
                     Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                         IconButton(onClick = {
-                            sl=sl--
+                            sl--
                             if(sl+shopcart.quantity.toInt()==0){
                                 Toast.makeText(context,"Đã đạt đến mưcs giảm tối đa",Toast.LENGTH_SHORT).show()
                             }else{
                                 showUpdateShopcart=true
-
+                                sl+shopcart.quantity.toInt()
+                               allprice=(sl+shopcart.quantity.toInt())*pr.price.toInt()
                             }
 
                         }) {
@@ -128,6 +147,8 @@ fun ShopCartItem(shopcart: Shopcart,viewModel: ProViewModel= ProViewModel(),view
                                 Toast.makeText(context,"Đã đạt đến mưcs tối đa",Toast.LENGTH_SHORT).show()
                             }else{
                                 shopcart.quantity.toInt()+sl++
+                                allprice=(sl+shopcart.quantity.toInt())*pr.price.toInt()
+                               showUpdateShopcart=true
                             }
                         }) {
                             Icon(imageVector = Icons.Default.Add, contentDescription = "")
@@ -140,7 +161,8 @@ fun ShopCartItem(shopcart: Shopcart,viewModel: ProViewModel= ProViewModel(),view
                         Text(text = "Mua hàng")
                     }
                     if(show){
-                        OpenDialogShop (show = true, onDissMiss = {show=false})
+
+                        OpenDialogShop (show = true, onDissMiss = {show=false},pr,shopcart)
                     }
                 }
             if(showUpdateShopcart){
@@ -152,17 +174,72 @@ fun ShopCartItem(shopcart: Shopcart,viewModel: ProViewModel= ProViewModel(),view
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun OpenDialogShop(show: Boolean, onDissMiss: () -> Unit) {
-    Text(text = "Đặt hàng")
+fun OpenDialogShop(show: Boolean, onDissMiss: () -> Unit,pro : Product,shopcart : Shopcart,oderviewmodel : OderViewModel= OderViewModel(),ProViewModel : ProViewModel=ProViewModel(),shopcartViewModel : ShopcartViewModel = ShopcartViewModel()) {
+    var name by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    val formattedDateTime =
+        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
     AlertDialog(
         onDismissRequest = onDissMiss,
-        title = { Text(text = "Thông tin mua hàng") },
+        title = {  Box(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = "Thông tin mua hàng",
+                modifier = Modifier.align(Alignment.Center), // Căn giữa cả chiều ngang và dọc
+                style = MaterialTheme.typography.titleMedium // Tùy chỉnh kiểu chữ (nếu muốn)
+            )
+        } },
         text = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text(text = "Nhập họ và tên") },
+                    modifier = Modifier.fillMaxWidth(0.8f)
+                )
+                OutlinedTextField(
+                    value = phone,
+                    onValueChange = { phone = it },
+                    label = { Text(text = "Nhập số điện thoại") },
+                    modifier = Modifier.fillMaxWidth(0.8f)
+                )
+                OutlinedTextField(
+                    value = address,
+                    onValueChange = { address = it },
+                    label = { Text(text = "Nhập địa chỉ giao hàng") },
+                    modifier = Modifier.fillMaxWidth(0.8f)
+                )
+                Spacer(modifier = Modifier.size(20.dp))
 
+            }
         },
-        confirmButton = {},
-        dismissButton = {})
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onDissMiss()
+                    val oder = Oder(name,phone,pro.id,shopcart.quantity.toInt(),shopcart.all.toInt(),address,0,formattedDateTime)
+                    oderviewmodel.addOder(oder)
+                    val pro = Product(pro.id,pro.name,pro.price.toInt(),pro.avatar,pro.infor,pro.category,pro.quantity.toInt()-shopcart.quantity.toInt())
+                    ProViewModel.updateProduct(pro.id,pro)
+                    shopcartViewModel.deleteShopcart(pro.id)
+
+                },
+                colors = ButtonDefaults.buttonColors(
+                    contentColor = Color.White, containerColor = Color(
+                        0xFFF55928
+                    )
+                ),
+            ) {
+                Text(text = "Đặt hàng")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDissMiss, colors = ButtonDefaults.buttonColors(contentColor = Color.White, containerColor = Color(0xFFF55928))) {
+                Text(text = "Hủy")
+            }
+        })
 }
 
 @Composable

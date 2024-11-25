@@ -1,16 +1,10 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.example.app_food.Bottombar
+package com.example.app_food.Screen
 
 
-import android.os.Bundle
-import android.util.Log
-import android.widget.ImageButton
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateIntSizeAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,18 +12,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -70,8 +61,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Observer
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.app_food.Model.New
@@ -394,26 +383,106 @@ fun Search() {
         mutableStateOf(false)
     }
 
-    SearchBar(query = text, onQueryChange = {
-        text = it
-    }, onSearch = {
-        active = false
-    }, active = active, onActiveChange = {
-        active = it
-    }, placeholder = {
-        Text(text = "Search")
-    }, leadingIcon = {
-        Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
-    }, trailingIcon = {
-        if (active) {
-            Icon(modifier = Modifier.clickable {
-                if (text.isNotEmpty()) {
-                    text = ""
-                } else {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        // Nội dung của SearchBar
+        if (!active) {
+            // Khi không active, hiển thị SearchBar thông thường
+            SearchBar(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                query = text,
+                onQueryChange = {
+                    text = it
+                },
+                onSearch = {
                     active = false
+                },
+                active = active,
+                onActiveChange = {
+                    active = it
+                },
+                placeholder = {
+                    Text(text = "Search")
+                },
+                leadingIcon = {
+                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
+                },
+                trailingIcon = {
+                    if (active) {
+                        Icon(
+                            modifier = Modifier.clickable {
+                                if (text.isNotEmpty()) {
+                                    text = ""
+                                } else {
+                                    active = false
+                                }
+                            },
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "close"
+                        )
+                    }
                 }
-            }, imageVector = Icons.Default.Close, contentDescription = "close")
+            ) {
+                // Nội dung xuất hiện khi active
+            }
+        } else {
+            // Khi active, SearchBar chiếm toàn màn hình
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White)
+                    .padding(16.dp)
+            ) {
+                SearchBar(
+                    modifier = Modifier.fillMaxWidth(),
+                    query = text,
+                    onQueryChange = {
+                        text = it
+                    },
+                    onSearch = {
+                        active = false
+                    },
+                    active = active,
+                    onActiveChange = {
+                        active = it
+                    },
+                    placeholder = {
+                        Text(text = "Search")
+                    },
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
+                    },
+                    trailingIcon = {
+                        Icon(
+                            modifier = Modifier.clickable {
+                                if (text.isNotEmpty()) {
+                                    text = ""
+                                } else {
+                                    active = false
+                                }
+                            },
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "close"
+                        )
+                    }
+                ) {
+                    // Nội dung chi tiết khi active
+                    LazyColumn {
+                        items(10) { index ->
+                            Text(
+                                text = "Result $index",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                            )
+                        }
+                    }
+                }
+            }
         }
-    }) {
     }
 }

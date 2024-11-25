@@ -14,14 +14,30 @@ class ProViewModel:ViewModel() {
     val proo : MutableLiveData<Response<List<Product>>> = MutableLiveData()
     private val _product = MutableLiveData<Product>()
     val product: LiveData<Product> = _product
+    val updateProduct= MutableLiveData<Response<Product>>()
+
+    fun updateProduct(idpro : String,pro : Product){
+        viewModelScope.launch {
+            try {
+                val respone=RetrofitInstance.api.updatePro(idpro,pro)
+                if(respone.isSuccessful){
+                    updateProduct.postValue(respone)
+                }else{
+                    Log.e("API Error", "Error: ${respone.errorBody()?.string()}")
+                }
+            }catch (ex :Exception){
+                ex.printStackTrace()
+                Log.e("API Error", "Exception: ${ex.localizedMessage}")
+            }
+        }
+    }
+
     fun getProBycategoryy(category : String){
         viewModelScope.launch {
             val response = RetrofitInstance.api.getProbycategory(category)
             proo.value = response
         }
     }
-
-
 
     fun getProById(id : String){
         viewModelScope.launch {

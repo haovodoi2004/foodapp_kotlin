@@ -24,13 +24,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.app_food.Bottombar.Home
+import com.example.app_food.Screen.Home
 import com.example.app_food.Repository.Repository
 import com.example.app_food.Screen.Sigin
 import com.example.app_food.Screen.Sigup
 import com.example.app_food.Bottombar.MainScreen
-import com.example.app_food.Bottombar.ProductList
 import com.example.app_food.Screen.ProductDetail
+import com.example.app_food.ScreenAdmin.Main
 import com.example.app_food.ViewModel.UserViewModel
 import com.example.app_food.ViewModel.UserViewModelFactory
 
@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
     fun AppNavigation(){
         val navController= rememberNavController()
         val context= LocalContext.current
-        NavHost(navController=navController, startDestination = "main") {
+        NavHost(navController=navController, startDestination = "signin") {
             composable("signin"){
                 Sigin(userViewModel = userViewModel,onSignupClick={
                     navController.navigate("signup")
@@ -60,6 +60,9 @@ class MainActivity : ComponentActivity() {
             }
             composable("home"){
                 Home(navController)
+            }
+            composable("mainadmin"){
+                Main()
             }
 
             composable("main"){

@@ -60,4 +60,24 @@ class ShopcartViewModel : ViewModel() {
             }
         }
     }
+
+    fun deleteShopcart(idpro : String){
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.api.deleteShopcart(idpro)
+                if (response.isSuccessful) {
+                    val updatedList = _ShopcartItems.filter { it.idpro != idpro }
+                    _ShopcartItems.clear()
+                    _ShopcartItems.addAll(updatedList)
+                    ShopcartItems.postValue(updatedList) // Cập nhật danh sách sau khi xóa
+                    fetchShopcart()
+                } else {
+                    Log.e("API Error", "Error: ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e("API Error", "Exception: ${e.localizedMessage}")
+            }
+        }
+    }
 }

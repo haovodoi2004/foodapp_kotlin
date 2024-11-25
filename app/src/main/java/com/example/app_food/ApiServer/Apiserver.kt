@@ -9,6 +9,7 @@ import com.example.app_food.Model.User
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -50,9 +51,12 @@ interface Apiserver {
         @Body shopcart: Shopcart
     ): Response<Shopcart>
 
-//    @PATCH("/{idpro}")
-//    suspend fun patchData(
-//        @Path("idpro") idpro: String,
-//        @Body partialData: Map<String, Any>
-//    ): Response<Shopcart>
+    @PUT("product/editproduct/{idpro}")
+    suspend fun updatePro(
+        @Path("idpro") idpro:String,
+        @Body product: Product
+    ):Response<Product>
+
+    @DELETE("shopcart/deleteshopcart/{idpro}")
+    suspend fun deleteShopcart(@Path("idpro") idpro : String) : Response<Shopcart>
 }
