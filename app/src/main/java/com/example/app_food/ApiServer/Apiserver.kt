@@ -59,4 +59,7 @@ interface Apiserver {
 
     @DELETE("shopcart/deleteshopcart/{idpro}")
     suspend fun deleteShopcart(@Path("idpro") idpro : String) : Response<Shopcart>
+
+    @POST("protype/addprotype")
+    suspend fun addprotype(@Body protype: Protype) : Response<Protype>
 }

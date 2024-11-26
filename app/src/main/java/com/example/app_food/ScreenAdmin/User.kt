@@ -9,8 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun Setting(){
-    Box(modifier = Modifier.fillMaxSize()){
-        Text(text = "Home", fontSize = 30.sp, modifier = Modifier.align(Alignment.Center))
+fun User(){
+    Box(modifier = Modifier.fillMaxSize(),){
+        Text(text = "User", fontSize = 30.sp, modifier = Modifier.align(Alignment.Center))
     }
 }

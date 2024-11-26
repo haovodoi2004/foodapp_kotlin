@@ -9,12 +9,23 @@ import androidx.lifecycle.viewModelScope
 import com.example.app_food.Model.Protype
 import com.example.app_food.Retrofit.RetrofitInstance
 import kotlinx.coroutines.launch
+import retrofit2.Response
 import retrofit2.await
 
 class ProtypeViewModel:ViewModel() {
     private val _ProItems= mutableStateListOf<Protype>()
     val protypeItems = MutableLiveData<List<Protype>>()
-
+    val dataprotype : MutableLiveData<Response<Protype>> = MutableLiveData()
+    fun addprotype(protype: Protype){
+        viewModelScope.launch {
+            try {
+                val respone=RetrofitInstance.api.addprotype(protype)
+                dataprotype.value=respone
+            }catch (e : Exception){
+                e.printStackTrace()
+            }
+        }
+    }
 
     fun fetchProtype(){
         viewModelScope.launch {
