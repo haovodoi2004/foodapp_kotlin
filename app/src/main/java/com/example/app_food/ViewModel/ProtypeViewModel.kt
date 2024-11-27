@@ -16,6 +16,37 @@ class ProtypeViewModel:ViewModel() {
     private val _ProItems= mutableStateListOf<Protype>()
     val protypeItems = MutableLiveData<List<Protype>>()
     val dataprotype : MutableLiveData<Response<Protype>> = MutableLiveData()
+
+    fun updateprotype(name : String,protype: Protype){
+        viewModelScope.launch {
+            try{
+                val respone=RetrofitInstance.api.updateprotype(name,protype)
+                if(respone.isSuccessful){
+
+                }else{
+                    Log.e("API ERROR", "ERROR: ${respone.errorBody()?.string()}")
+                }
+            }catch (e : Exception){
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun deleteprotype(name : String){
+        viewModelScope.launch {
+            try {
+                val respone=RetrofitInstance.api.deleteprotype(name)
+                if(respone.isSuccessful){
+
+                }else{
+                    Log.e("API Error", "Error: ${respone.errorBody()?.string()}")
+                }
+            }catch (e : Exception){
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun addprotype(protype: Protype){
         viewModelScope.launch {
             try {

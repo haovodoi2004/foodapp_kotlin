@@ -62,4 +62,10 @@ interface Apiserver {
 
     @POST("protype/addprotype")
     suspend fun addprotype(@Body protype: Protype) : Response<Protype>
+
+    @DELETE("protype/deleteprotype/{name}")
+    suspend fun  deleteprotype(@Path("name") name : String) : Response<Protype>
+
+    @PUT("protype/editprotype/{name}")
+    suspend fun updateprotype(@Path("name") name : String,@Body protype: Protype) : Response<Protype>
 }

@@ -76,7 +76,9 @@ fun Productype(viewModel: ProtypeViewModel= ProtypeViewModel()){
                 showdialog=true
             },
             modifier = Modifier
-                .background(color = Color(0xFF673AB7), shape = CircleShape).size(50.dp).align(Alignment.BottomEnd)
+                .background(color = Color(0xFF673AB7), shape = CircleShape)
+                .size(50.dp)
+                .align(Alignment.BottomEnd)
         ) {
             Icon(imageVector = Icons.Default.Add, contentDescription = "")
         }
@@ -88,8 +90,45 @@ fun Productype(viewModel: ProtypeViewModel= ProtypeViewModel()){
 }
 
 @Composable
-fun deleteDialog(){
-    AlertDialog(onDismissRequest = )
+fun updateDialog(show : Boolean , onDissmiss: () -> Unit , protye: Protype , protypeViewModel: ProtypeViewModel=ProtypeViewModel()){
+   var name by remember { mutableStateOf("") }
+    AlertDialog(onDismissRequest = onDissmiss,
+        title = { Text(text = "Sửa thông tin") },
+        text = {
+            OutlinedTextField(value = name , onValueChange = {name = it}, label = { Text(text = "Nhập tên loại")}, modifier = Modifier.fillMaxWidth(0.8f))
+        }, dismissButton = {
+            Button(onClick = {onDissmiss()}) {
+                Text(text = "Hủy")
+            }
+        }, confirmButton = {
+            Button(onClick = {
+                val pro = Protype(name)
+                protypeViewModel.updateprotype(protye.name, pro)
+                onDissmiss()
+            }) {
+                Text(text = "Ok")
+            }
+        })
+}
+
+@Composable
+fun deleteDialog(show: Boolean, onDissmiss: () -> Unit, name : String,protypeViewModel: ProtypeViewModel= ProtypeViewModel()) {
+    AlertDialog(onDismissRequest = onDissmiss,
+        title = { Text(text = "Thông báo") },
+        text = {
+        Text(text = "Bạn có muốn xóa không ?")
+        },
+        dismissButton = {
+            Button(onClick = {onDissmiss()}) {
+                Text(text = "Hủy")
+            }
+        },
+        confirmButton = {
+            Button(onClick = {protypeViewModel.deleteprotype(name)
+            onDissmiss()}) {
+                Text(text = "Ok")
+            }
+        })
 }
 
 @Composable
@@ -136,19 +175,29 @@ fun modalDialog(show : Boolean,onDissmiss : ()-> Unit,protypeViewModel: ProtypeV
 
 @Composable
 fun ProtypeItem(protye : Protype){
-    Card(modifier = Modifier.fillMaxWidth(0.8f).padding(top = 10.dp)) {
+    var showdialogdelete by remember { mutableStateOf(false) }
+    var showdialogupdate by remember { mutableStateOf(false) }
+    Card(modifier = Modifier
+        .fillMaxWidth(0.8f)
+        .padding(top = 10.dp)) {
         Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
             Text(text = "${protye.name}", fontSize = 20.sp, modifier = Modifier.fillMaxWidth(0.6f))
             Row() {
 
-                IconButton(onClick = { deleteDialog() }) {
+                IconButton(onClick = { showdialogdelete=true }) {
                     Icon(imageVector = Icons.Default.Clear, contentDescription = "")
                 }
 
-                IconButton(onClick = {}) {
+                IconButton(onClick = {showdialogupdate=true}) {
                     Icon(imageVector = Icons.Default.Create, contentDescription = "")
                 }
             }
         }
+    }
+    if(showdialogupdate){
+        updateDialog(showdialogupdate, onDissmiss = {showdialogupdate=false},protye)
+    }
+    if(showdialogdelete){
+        deleteDialog(showdialogdelete, onDissmiss = {showdialogdelete=false},protye.name.toString())
     }
 }
