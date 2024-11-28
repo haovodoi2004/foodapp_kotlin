@@ -65,7 +65,7 @@ fun Productype(viewModel: ProtypeViewModel= ProtypeViewModel()){
                 } else {
                     LazyColumn {
                         items(protypeItems) { protype ->
-                            ProtypeItem(protype)
+                            ProtypeItem(protype,viewModel)
                         }
                     }
                 }
@@ -84,7 +84,7 @@ fun Productype(viewModel: ProtypeViewModel= ProtypeViewModel()){
         }
 
         if(showdialog){
-            modalDialog(showdialog,onDissmiss={showdialog=false},protypeItems = protypeItems)
+            modalDialog(showdialog,onDissmiss={showdialog=false},protypeViewModel = ProtypeViewModel(),protypeItems = protypeItems)
         }
     }
 }
@@ -112,7 +112,7 @@ fun updateDialog(show : Boolean , onDissmiss: () -> Unit , protye: Protype , pro
 }
 
 @Composable
-fun deleteDialog(show: Boolean, onDissmiss: () -> Unit, name : String,protypeViewModel: ProtypeViewModel= ProtypeViewModel()) {
+fun deleteDialog(show: Boolean, onDissmiss: () -> Unit, name : String,protypeViewModel: ProtypeViewModel) {
     AlertDialog(onDismissRequest = onDissmiss,
         title = { Text(text = "Thông báo") },
         text = {
@@ -132,7 +132,7 @@ fun deleteDialog(show: Boolean, onDissmiss: () -> Unit, name : String,protypeVie
 }
 
 @Composable
-fun modalDialog(show : Boolean,onDissmiss : ()-> Unit,protypeViewModel: ProtypeViewModel=ProtypeViewModel(),protypeItems: List<Protype>){
+fun modalDialog(show : Boolean,onDissmiss : ()-> Unit,protypeViewModel: ProtypeViewModel,protypeItems: List<Protype>){
     var nameprotype by remember { mutableStateOf("") }
     val context = LocalContext.current
     var number by remember { mutableStateOf(0) }
@@ -174,7 +174,7 @@ fun modalDialog(show : Boolean,onDissmiss : ()-> Unit,protypeViewModel: ProtypeV
 }
 
 @Composable
-fun ProtypeItem(protye : Protype){
+fun ProtypeItem(protye : Protype,viewModel: ProtypeViewModel){
     var showdialogdelete by remember { mutableStateOf(false) }
     var showdialogupdate by remember { mutableStateOf(false) }
     Card(modifier = Modifier
@@ -195,9 +195,9 @@ fun ProtypeItem(protye : Protype){
         }
     }
     if(showdialogupdate){
-        updateDialog(showdialogupdate, onDissmiss = {showdialogupdate=false},protye)
+        updateDialog(showdialogupdate, onDissmiss = {showdialogupdate=false},protye,protypeViewModel = viewModel)
     }
     if(showdialogdelete){
-        deleteDialog(showdialogdelete, onDissmiss = {showdialogdelete=false},protye.name.toString())
+        deleteDialog(showdialogdelete, onDissmiss = {showdialogdelete=false},protye.name.toString(), protypeViewModel = viewModel)
     }
 }

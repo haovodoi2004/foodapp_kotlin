@@ -12,62 +12,68 @@ import kotlinx.coroutines.launch
 import retrofit2.Response
 import retrofit2.await
 
-class ProtypeViewModel:ViewModel() {
-    private val _ProItems= mutableStateListOf<Protype>()
-    val protypeItems = MutableLiveData<List<Protype>>()
-    val dataprotype : MutableLiveData<Response<Protype>> = MutableLiveData()
+class ProtypeViewModel : ViewModel() {
+    val protypeItems = MutableLiveData<List<Protype>>() // Quản lý danh sách bằng LiveData
 
-    fun updateprotype(name : String,protype: Protype){
-        viewModelScope.launch {
-            try{
-                val respone=RetrofitInstance.api.updateprotype(name,protype)
-                if(respone.isSuccessful){
-
-                }else{
-                    Log.e("API ERROR", "ERROR: ${respone.errorBody()?.string()}")
-                }
-            }catch (e : Exception){
-                e.printStackTrace()
-            }
-        }
-    }
-
-    fun deleteprotype(name : String){
+    fun fetchProtype() {
         viewModelScope.launch {
             try {
-                val respone=RetrofitInstance.api.deleteprotype(name)
-                if(respone.isSuccessful){
-
-                }else{
-                    Log.e("API Error", "Error: ${respone.errorBody()?.string()}")
+                val response = RetrofitInstance.api.getprotype()
+                if (response.isNotEmpty()) {
+                    protypeItems.postValue(response)
+                } else {
+                    protypeItems.postValue(emptyList())
                 }
-            }catch (e : Exception){
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun addprotype(protype: Protype){
+    fun addprotype(protype: Protype) {
         viewModelScope.launch {
             try {
-                val respone=RetrofitInstance.api.addprotype(protype)
-                dataprotype.value=respone
-            }catch (e : Exception){
+                val response = RetrofitInstance.api.addprotype(protype)
+                if (response.isSuccessful) {
+                    // Thêm vào danh sách hiện tại nếu API thành công
+                    val currentList = protypeItems.value ?: emptyList()
+                    protypeItems.postValue(currentList + response.body()!!)
+                }
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun fetchProtype(){
+    fun deleteprotype(name: String) {
         viewModelScope.launch {
-            try{
-                val respone=RetrofitInstance.api.getprotype()
-                println("Fetched data: $respone")
-                Log.e("API Response"," Fetches data : $respone")
-                _ProItems.clear()  // Xóa dữ liệu cũ nếu cần
-                _ProItems.addAll(respone)
-                protypeItems.postValue(_ProItems)
-            }catch (e:Exception){
+            try {
+                val response = RetrofitInstance.api.deleteprotype(name)
+                if (response.isSuccessful) {
+                    val currentList = protypeItems.value ?: emptyList()
+                    protypeItems.value = currentList.filter { it.name != name } // Cập nhật giá trị
+                   fetchProtype()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+
+    fun updateprotype(name: String, protype: Protype) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.api.updateprotype(name, protype)
+                if (response.isSuccessful) {
+                    // Cập nhật danh sách hiện tại
+                    val currentList = protypeItems.value ?: emptyList()
+                    val updatedList = currentList.map {
+                        if (it.name == name) protype else it
+                    }
+                    protypeItems.postValue(updatedList)
+                }
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
