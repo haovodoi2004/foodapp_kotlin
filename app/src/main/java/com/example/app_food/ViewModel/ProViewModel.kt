@@ -14,14 +14,29 @@ class ProViewModel:ViewModel() {
     val proo : MutableLiveData<Response<List<Product>>> = MutableLiveData()
     private val _product = MutableLiveData<Product>()
     val product: LiveData<Product> = _product
-    val updateProduct= MutableLiveData<Response<Product>>()
+    val Product= MutableLiveData<List<Product>>()
+
+    fun fetchProduct(){
+        viewModelScope.launch {
+            val respone=RetrofitInstance.api.getproduct()
+            try {
+               if(respone.isNotEmpty()){
+                   Product.postValue(respone)
+               }else{
+                   Product.postValue(emptyList())
+               }
+            }catch (e:Exception){
+                e.printStackTrace()
+            }
+        }
+    }
 
     fun updateProduct(idpro : String,pro : Product){
         viewModelScope.launch {
             try {
                 val respone=RetrofitInstance.api.updatePro(idpro,pro)
                 if(respone.isSuccessful){
-                    updateProduct.postValue(respone)
+                    fetchProduct()
                 }else{
                     Log.e("API Error", "Error: ${respone.errorBody()?.string()}")
                 }

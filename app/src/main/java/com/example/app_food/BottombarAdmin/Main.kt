@@ -37,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -44,20 +45,21 @@ import com.example.app_food.R
 import com.example.app_food.ScreenAdmin.Home
 import com.example.app_food.ScreenAdmin.New
 import com.example.app_food.ScreenAdmin.Oder
-import com.example.app_food.ScreenAdmin.Person
+import com.example.app_food.ScreenAdmin.Product
+
 import com.example.app_food.ScreenAdmin.Productype
 import com.example.app_food.ScreenAdmin.User
 import kotlinx.coroutines.launch
 
 @Composable
-fun Main() {
-LearnNavDrawer()
+fun Main(navController: NavController) {
+LearnNavDrawer(navController)
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LearnNavDrawer() {
+fun LearnNavDrawer(navController: NavController) {
     val navigationController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -178,7 +180,7 @@ fun LearnNavDrawer() {
         NavHost(navController =  navigationController, startDestination = Screens.Home.screen, modifier = Modifier.padding(paddingValues)  ){
                 composable(Screens.Home.screen){ Home() }
                 composable(Screens.ProductType.screen){ Productype()  }
-                composable(Screens.Product.screen) { Person()  }
+                composable(Screens.Product.screen) { Product(navController)  }
                 composable(Screens.User.screen) { User()  }
                 composable(Screens.Oder.screen) { Oder()  }
                 composable(Screens.New.screen) { New()  }

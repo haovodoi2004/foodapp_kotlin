@@ -35,9 +35,9 @@ class ProtypeViewModel : ViewModel() {
             try {
                 val response = RetrofitInstance.api.addprotype(protype)
                 if (response.isSuccessful) {
-                    // Thêm vào danh sách hiện tại nếu API thành công
-                    val currentList = protypeItems.value ?: emptyList()
-                    protypeItems.postValue(currentList + response.body()!!)
+                    val updatedList = RetrofitInstance.api.getprotype()
+                    protypeItems.postValue(updatedList)
+                    fetchProtype()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -50,9 +50,7 @@ class ProtypeViewModel : ViewModel() {
             try {
                 val response = RetrofitInstance.api.deleteprotype(name)
                 if (response.isSuccessful) {
-                    val currentList = protypeItems.value ?: emptyList()
-                    protypeItems.value = currentList.filter { it.name != name } // Cập nhật giá trị
-                   fetchProtype()
+                    fetchProtype()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -66,12 +64,7 @@ class ProtypeViewModel : ViewModel() {
             try {
                 val response = RetrofitInstance.api.updateprotype(name, protype)
                 if (response.isSuccessful) {
-                    // Cập nhật danh sách hiện tại
-                    val currentList = protypeItems.value ?: emptyList()
-                    val updatedList = currentList.map {
-                        if (it.name == name) protype else it
-                    }
-                    protypeItems.postValue(updatedList)
+                    fetchProtype()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

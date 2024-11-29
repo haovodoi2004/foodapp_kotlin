@@ -84,13 +84,13 @@ fun Productype(viewModel: ProtypeViewModel= ProtypeViewModel()){
         }
 
         if(showdialog){
-            modalDialog(showdialog,onDissmiss={showdialog=false},protypeViewModel = ProtypeViewModel(),protypeItems = protypeItems)
+            modalDialog(showdialog,onDissmiss={showdialog=false}, viewModel,protypeItems = protypeItems)
         }
     }
 }
 
 @Composable
-fun updateDialog(show : Boolean , onDissmiss: () -> Unit , protye: Protype , protypeViewModel: ProtypeViewModel=ProtypeViewModel()){
+fun updateDialog(show : Boolean , onDissmiss: () -> Unit , protye: Protype , protypeViewModel: ProtypeViewModel){
    var name by remember { mutableStateOf("") }
     AlertDialog(onDismissRequest = onDissmiss,
         title = { Text(text = "Sửa thông tin") },
@@ -136,29 +136,29 @@ fun modalDialog(show : Boolean,onDissmiss : ()-> Unit,protypeViewModel: ProtypeV
     var nameprotype by remember { mutableStateOf("") }
     val context = LocalContext.current
     var number by remember { mutableStateOf(0) }
-    for(protype in protypeItems){
-        if(protype.name==nameprotype){
-            number
-        }else{
-            number=1
 
-        }
-    }
     AlertDialog(onDismissRequest = {onDissmiss},
         title = { Text(text = "Thêm loại sản phẩm") },
         text = {
             OutlinedTextField(value = nameprotype, onValueChange = {nameprotype=it}, label = { Text(text = "Nhập tên loai sản phẩm") })
         }, confirmButton = {
             Button(onClick = {
+                number=0
+                for(protype in protypeItems){
+                    if(protype.name==nameprotype){
+                        number=1
+                        break
+                    }
+                }
                 if(nameprotype.isEmpty()){
                     Toast.makeText(context,"Bạn ko được bỏ trống",Toast.LENGTH_LONG).show()
                 }else{
-                    if(number==0){
+                    if(number==1){
                         Toast.makeText(context,"Loại sản phầm này đã tồn tại",Toast.LENGTH_LONG).show()
                     }else{
-                        onDissmiss()
                         val protype=Protype(nameprotype)
                         protypeViewModel.addprotype(protype)
+                        onDissmiss()
                         Toast.makeText(context,"Thêm thành công ${nameprotype}",Toast.LENGTH_LONG).show()
                     }
                 }

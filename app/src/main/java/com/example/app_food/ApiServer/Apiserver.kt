@@ -68,4 +68,7 @@ interface Apiserver {
 
     @PUT("protype/editprotype/{name}")
     suspend fun updateprotype(@Path("name") name : String,@Body protype: Protype) : Response<Protype>
+
+    @GET("product/getlistproduct")
+    suspend fun getproduct() : List<Product>
 }

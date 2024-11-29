@@ -1,5 +1,6 @@
 package com.example.app_food
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -31,6 +32,7 @@ import com.example.app_food.Screen.Sigup
 import com.example.app_food.Bottombar.MainScreen
 import com.example.app_food.Screen.ProductDetail
 import com.example.app_food.BottombarAdmin.Main
+import com.example.app_food.ScreenAdmin.productDetailAdmin
 import com.example.app_food.ViewModel.UserViewModel
 import com.example.app_food.ViewModel.UserViewModelFactory
 
@@ -44,6 +46,7 @@ class MainActivity : ComponentActivity() {
             AppNavigation()
         }}
 
+    @SuppressLint("NewApi")
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun AppNavigation(){
@@ -62,9 +65,19 @@ class MainActivity : ComponentActivity() {
                 Home(navController)
             }
             composable("mainadmin"){
-                Main()
+                Main(navController)
             }
 
+            composable(route = "productdetailAdmin/{productId}",
+                arguments = listOf(navArgument("productId"){type=NavType.StringType})
+            ){backStackEntry ->
+                val productId=backStackEntry.arguments?.getString("productId")
+                if(productId!=null) {
+                    productDetailAdmin(navController,productId)
+                }else{
+                    Toast.makeText(context,"product id lỗi cmnr",Toast.LENGTH_SHORT).show()
+                }
+            }
             composable("main"){
                 MainScreen(navController)
             }
