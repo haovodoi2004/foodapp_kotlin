@@ -18,14 +18,15 @@ class ProViewModel:ViewModel() {
 
     fun fetchProduct(){
         viewModelScope.launch {
-            val respone=RetrofitInstance.api.getproduct()
             try {
+                val respone=RetrofitInstance.api.getproduct()
                if(respone.isNotEmpty()){
                    Product.postValue(respone)
                }else{
                    Product.postValue(emptyList())
                }
             }catch (e:Exception){
+                Log.e("phản hồi danh sách sản phẩm","Error : ${e.localizedMessage}",e)
                 e.printStackTrace()
             }
         }
@@ -47,12 +48,25 @@ class ProViewModel:ViewModel() {
         }
     }
 
-    fun getProBycategoryy(category : String){
+    fun getProBycategoryy(category: String) {
         viewModelScope.launch {
-            val response = RetrofitInstance.api.getProbycategory(category)
-            proo.value = response
+            try {
+                val response = RetrofitInstance.api.getProbycategory(category)
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        Product.postValue(it) // Gán vào LiveData chính
+                    }
+                } else {
+                    Log.e("getProBycategoryy", "Error: ${response.errorBody()?.string()}")
+                    Product.postValue(emptyList())
+                }
+            } catch (e: Exception) {
+                Log.e("getProBycategoryy", "Exception: ${e.localizedMessage}", e)
+                Product.postValue(emptyList())
+            }
         }
     }
+
 
     fun getProById(id : String){
         viewModelScope.launch {

@@ -1,11 +1,9 @@
 package com.example.app_food.ScreenAdmin
 
-import android.icu.text.CaseMap.Title
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,17 +16,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardDefaults.elevatedCardElevation
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -46,42 +40,38 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import coil.size.Size
 import com.example.app_food.Model.Product
 import com.example.app_food.Model.Protype
-import com.example.app_food.Screen.ProductItem
 import com.example.app_food.ViewModel.ProViewModel
 import com.example.app_food.ViewModel.ProtypeViewModel
 
 @Composable
 fun Product(
-    navController: NavController,
-    protypeViewModel: ProtypeViewModel = ProtypeViewModel(),
-    productViewModel: ProViewModel = ProViewModel(),
-
+    onButtonClick: (String) -> Unit,
+    protypeViewModel: ProtypeViewModel= ProtypeViewModel(),
+    productViewModel: ProViewModel=ProViewModel()
 ) {
     val listProtype by protypeViewModel.protypeItems.observeAsState(initial = emptyList())
     val listproduct by productViewModel.Product.observeAsState(initial = emptyList())
     var selectedCategory by remember { mutableStateOf("") }
     var filteredProducts by remember { mutableStateOf(listproduct) } // State để lưu danh sách đã lọc
 
-    // Lấy danh sách loại sản phẩm khi khởi chạy
     LaunchedEffect(Unit) {
-        if (listProtype.isEmpty()) {
-            protypeViewModel.fetchProtype() // Giả định có hàm fetchProtype()
-        }
-        if (listproduct.isEmpty()) {
+        if(listproduct.isEmpty()||listproduct.isEmpty()){
             productViewModel.fetchProduct()
+            protypeViewModel.fetchProtype()
         }
+
+        println("Products: ${productViewModel.Product.value}")
+        println("Protypes: ${protypeViewModel.protypeItems.value}")
     }
 
     // Lọc danh sách sản phẩm khi danh mục thay đổi
@@ -107,16 +97,16 @@ fun Product(
                 }
             )
             // Hiển thị danh sách sản phẩm đã lọc
-            listProduct(filteredProducts,navController)
+            listProduct(filteredProducts,onButtonClick)
         }
     }
 }
 
 
 @Composable
-fun productItem(product: Product,navController: NavController){
+fun productItem(product: Product,onButton : (String) -> Unit){
     Card(modifier = Modifier.fillMaxWidth(0.8f).padding(8.dp), onClick = {
-        navController.navigate("productdetailAdmin/${product.id}")
+        onButton(product.id)
     }) {
         Column() {
             // Bạn có thể thêm thông tin khác của sản phẩm tại đây
@@ -136,12 +126,12 @@ fun productItem(product: Product,navController: NavController){
 }
 
 @Composable
-fun listProduct(producList : List<Product>,navController: NavController){
+fun listProduct(producList : List<Product>,onButton : (String)->Unit){
 
     LazyColumn() {
         items(producList){
             pro->
-            productItem(pro,navController)
+            productItem(pro,onButton)
         }
     }
 }
@@ -155,7 +145,12 @@ fun CategoryItems(title: String,onSelect : (String) -> Unit){
 
 @Composable
 fun dropMenu(listProtype : List<Protype>,selectedCategory: String,
-             onCategorySelected: (String) -> Unit){
+             onCategorySelected: (String) -> Unit, protypeViewModel: ProtypeViewModel = ProtypeViewModel(),
+             productViewModel: ProViewModel = ProViewModel()){
+    LaunchedEffect(Unit) {
+        productViewModel.fetchProduct()
+        protypeViewModel.fetchProtype()
+    }
     var category by remember { mutableStateOf("") }
     val heightTextflied by remember { mutableStateOf(55.dp) }
     var textFliedSize by remember { mutableStateOf(androidx.compose.ui.geometry.Size.Zero) }
@@ -248,8 +243,6 @@ fun dropMenu(listProtype : List<Protype>,selectedCategory: String,
                                     }
                                 }
                             }
-
-
                         }
                     }
                 }

@@ -72,7 +72,6 @@ import java.util.Date
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun productDetailAdmin(
-    navController: NavController,
     produc: String,
     viewModel: ProViewModel = ProViewModel()
 ) {
@@ -101,7 +100,7 @@ fun productDetailAdmin(
                 )
 
                 IconButton(
-                    onClick = { navController.navigateUp() },
+                    onClick = { },
                     modifier = Modifier
                         .align(Alignment.TopStart) // Căn nút ở góc trên bên trái
                         .padding(16.dp) // Khoảng cách từ cạnh

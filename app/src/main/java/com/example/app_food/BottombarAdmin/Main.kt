@@ -38,10 +38,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.app_food.R
+import com.example.app_food.Screen.ProductDetail
 import com.example.app_food.ScreenAdmin.Home
 import com.example.app_food.ScreenAdmin.New
 import com.example.app_food.ScreenAdmin.Oder
@@ -49,17 +53,15 @@ import com.example.app_food.ScreenAdmin.Product
 
 import com.example.app_food.ScreenAdmin.Productype
 import com.example.app_food.ScreenAdmin.User
+import com.example.app_food.ScreenAdmin.productDetailAdmin
 import kotlinx.coroutines.launch
 
-@Composable
-fun Main(navController: NavController) {
-LearnNavDrawer(navController)
-}
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "NewApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LearnNavDrawer(navController: NavController) {
+fun LearnNavDrawer() {
     val navigationController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -82,7 +84,6 @@ fun LearnNavDrawer(navController: NavController) {
                         Text(text = "Admin", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 25.sp)
                     }
                 }
-                Divider()
                 NavigationDrawerItem(label = { Text(text = "Home" , color = Color.Black) },
                     selected = false,
                     icon = { Icon(painter = painterResource(R.drawable.home), contentDescription = "", tint = Color.Black,modifier = Modifier.size(30.dp))},
@@ -180,10 +181,20 @@ fun LearnNavDrawer(navController: NavController) {
         NavHost(navController =  navigationController, startDestination = Screens.Home.screen, modifier = Modifier.padding(paddingValues)  ){
                 composable(Screens.Home.screen){ Home() }
                 composable(Screens.ProductType.screen){ Productype()  }
-                composable(Screens.Product.screen) { Product(navController)  }
+            composable(Screens.Product.screen) {
+                Product(onButtonClick = { productId ->
+                    navigationController.navigate("productDetail/$productId")})
+            }
                 composable(Screens.User.screen) { User()  }
                 composable(Screens.Oder.screen) { Oder()  }
                 composable(Screens.New.screen) { New()  }
+            composable(
+                "productDetail/{productId}",
+                arguments = listOf(navArgument("productId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val productId = backStackEntry.arguments?.getString("productId") ?: ""
+                productDetailAdmin(productId)
+            }
             }
         }
     }
