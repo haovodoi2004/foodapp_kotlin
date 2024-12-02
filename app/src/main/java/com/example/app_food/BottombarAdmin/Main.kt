@@ -54,6 +54,9 @@ import com.example.app_food.ScreenAdmin.Product
 import com.example.app_food.ScreenAdmin.Productype
 import com.example.app_food.ScreenAdmin.User
 import com.example.app_food.ScreenAdmin.productDetailAdmin
+import com.example.app_food.ViewModel.ProViewModel
+import com.example.app_food.ViewModel.ProtypeViewModel
+import com.example.app_food.ViewModel.UserViewModel
 import kotlinx.coroutines.launch
 
 
@@ -61,7 +64,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "NewApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LearnNavDrawer() {
+fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: ProViewModel=ProViewModel(),ProtypeViewModel: ProtypeViewModel=ProtypeViewModel()) {
     val navigationController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -178,14 +181,14 @@ fun LearnNavDrawer() {
                     }
                 },)
         }) {paddingValues ->
-        NavHost(navController =  navigationController, startDestination = Screens.Home.screen, modifier = Modifier.padding(paddingValues)  ){
+        NavHost(navController =  navigationController, startDestination = Screens.Home.screen, modifier = Modifier.padding(paddingValues)){
                 composable(Screens.Home.screen){ Home() }
                 composable(Screens.ProductType.screen){ Productype()  }
             composable(Screens.Product.screen) {
                 Product(onButtonClick = { productId ->
-                    navigationController.navigate("productDetail/$productId")})
+                    navigationController.navigate("productDetail/$productId")}, productViewModel = ProViewModel, protypeViewModel = ProtypeViewModel)
             }
-                composable(Screens.User.screen) { User()  }
+                composable(Screens.User.screen) { User(userViewModel)  }
                 composable(Screens.Oder.screen) { Oder()  }
                 composable(Screens.New.screen) { New()  }
             composable(
@@ -193,7 +196,7 @@ fun LearnNavDrawer() {
                 arguments = listOf(navArgument("productId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val productId = backStackEntry.arguments?.getString("productId") ?: ""
-                productDetailAdmin(productId)
+                productDetailAdmin(productId,navigationController)
             }
             }
         }

@@ -1,6 +1,7 @@
 package com.example.app_food.ScreenAdmin
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -15,9 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.elevatedCardElevation
@@ -56,22 +59,24 @@ import com.example.app_food.ViewModel.ProtypeViewModel
 @Composable
 fun Product(
     onButtonClick: (String) -> Unit,
-    protypeViewModel: ProtypeViewModel= ProtypeViewModel(),
-    productViewModel: ProViewModel=ProViewModel()
+    productViewModel: ProViewModel,
+    protypeViewModel: ProtypeViewModel,
 ) {
     val listProtype by protypeViewModel.protypeItems.observeAsState(initial = emptyList())
     val listproduct by productViewModel.Product.observeAsState(initial = emptyList())
     var selectedCategory by remember { mutableStateOf("") }
     var filteredProducts by remember { mutableStateOf(listproduct) } // State để lưu danh sách đã lọc
 
-    LaunchedEffect(Unit) {
-        if(listproduct.isEmpty()||listproduct.isEmpty()){
+    LaunchedEffect(true) {
+        if(listproduct.isEmpty()){
             productViewModel.fetchProduct()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if(listProtype.isEmpty()){
             protypeViewModel.fetchProtype()
         }
-
-        println("Products: ${productViewModel.Product.value}")
-        println("Protypes: ${protypeViewModel.protypeItems.value}")
     }
 
     // Lọc danh sách sản phẩm khi danh mục thay đổi
@@ -82,6 +87,8 @@ fun Product(
             listproduct.filter { it.category == selectedCategory }
         }
     }
+
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -94,10 +101,14 @@ fun Product(
                 selectedCategory = selectedCategory,
                 onCategorySelected = { category ->
                     selectedCategory = category
-                }
+                },
             )
             // Hiển thị danh sách sản phẩm đã lọc
             listProduct(filteredProducts,onButtonClick)
+
+        }
+        IconButton(onClick = {}, modifier = Modifier.align(alignment = Alignment.BottomEnd).background(color = Color(0xFF673AB7), shape = CircleShape)) {
+            Icon(imageVector = Icons.Default.Add, contentDescription = "")
         }
     }
 }
@@ -145,12 +156,7 @@ fun CategoryItems(title: String,onSelect : (String) -> Unit){
 
 @Composable
 fun dropMenu(listProtype : List<Protype>,selectedCategory: String,
-             onCategorySelected: (String) -> Unit, protypeViewModel: ProtypeViewModel = ProtypeViewModel(),
-             productViewModel: ProViewModel = ProViewModel()){
-    LaunchedEffect(Unit) {
-        productViewModel.fetchProduct()
-        protypeViewModel.fetchProtype()
-    }
+             onCategorySelected: (String) -> Unit){
     var category by remember { mutableStateOf("") }
     val heightTextflied by remember { mutableStateOf(55.dp) }
     var textFliedSize by remember { mutableStateOf(androidx.compose.ui.geometry.Size.Zero) }

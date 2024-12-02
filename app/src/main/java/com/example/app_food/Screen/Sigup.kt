@@ -38,13 +38,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.app_food.Model.User
 import com.example.app_food.R
-import com.example.app_food.Repository.Repository
 import com.example.app_food.ViewModel.UserViewModel
-import com.example.app_food.ViewModel.UserViewModelFactory
 
 
 @Composable
-fun Sigup(navController: NavController, userViewModel: UserViewModel) {
+fun Sigup(navController: NavController, userViewModel: UserViewModel=UserViewModel()) {
     Box(modifier = Modifier.fillMaxSize()) {
 
         Column(modifier = Modifier.fillMaxSize()) {

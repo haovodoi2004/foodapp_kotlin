@@ -38,10 +38,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import com.example.app_food.ViewModel.UserViewModel
-import com.example.app_food.ViewModel.UserViewModelFactory
 
 @Composable
-fun Sigin(userViewModel: UserViewModel,onSignupClick: () -> Unit,navController: NavController) {
+fun Sigin(onSignupClick: () -> Unit,navController: NavController,userViewModel: UserViewModel=UserViewModel()) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rememberMe by remember { mutableStateOf(false) }

@@ -71,4 +71,10 @@ interface Apiserver {
 
     @GET("product/getlistproduct")
     suspend fun getproduct() : List<Product>
+
+    @GET("us/getlistuser")
+    suspend fun getlistuser() : List<User>
+
+    @DELETE("us/deleteuser/{email}")
+    suspend fun deleteuser(@Path("email") email: String) : Response<User>
 }

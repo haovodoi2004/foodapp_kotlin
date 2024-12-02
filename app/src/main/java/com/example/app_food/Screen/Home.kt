@@ -3,6 +3,7 @@
 package com.example.app_food.Screen
 
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
@@ -75,7 +76,7 @@ import kotlinx.coroutines.launch
 import retrofit2.Response
 
 @Composable
-fun Home(navController: NavController) {
+fun Home(navController: NavController,proViewModel: ProViewModel,protypeViewModel: ProtypeViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -83,7 +84,7 @@ fun Home(navController: NavController) {
     ) {
         item { Search() }
         item { AutoImage() }
-        item { ProtypeList(navController) }
+        item { ProtypeList(navController,protypeViewModel,proViewModel) }
         item { Even() }
     }
 }
@@ -165,7 +166,7 @@ fun Even(viewModel: NewViewModel = NewViewModel()) {
 }
 
 @Composable
-fun ProtypeList(navController: NavController,viewModel: ProtypeViewModel=ProtypeViewModel(),view:ProViewModel=ProViewModel()) {
+fun ProtypeList(navController: NavController, viewModel: ProtypeViewModel, view:ProViewModel) {
     // Khởi chạy lấy danh sách các loại sản phẩm
     val protypeItems by viewModel.protypeItems.observeAsState(initial = emptyList())
 
@@ -192,18 +193,18 @@ fun ProtypeList(navController: NavController,viewModel: ProtypeViewModel=Protype
     ProductList(navController,view)
 }
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
-fun ProductList(navController: NavController,view: ProViewModel=ProViewModel()) {
+fun ProductList(navController: NavController,view: ProViewModel) {
     // Theo dõi dữ liệu từ view.proo và hiển thị danh sách sản phẩm
-    val proList by view.proo.observeAsState(initial = Response.success(emptyList()))
-
-    LazyRow(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        items(proList.body() ?: emptyList()) { product ->
-            ProductItem(product,navController)
+    val proList by view.Product.observeAsState(initial =emptyList())
+        LazyRow(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(proList) { product ->
+                ProductItem(product,navController)
+            }
         }
-    }
 }
 
 @Composable

@@ -9,7 +9,6 @@ import com.example.app_food.Model.Oder
 import com.example.app_food.Model.Protype
 import com.example.app_food.Model.Shopcart
 import com.example.app_food.Model.User
-import com.example.app_food.Repository.Repository
 import com.example.app_food.Retrofit.RetrofitInstance
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -19,6 +18,15 @@ class ShopcartViewModel : ViewModel() {
     private val _ShopcartItems= mutableStateListOf<Shopcart>()
     val ShopcartItems = MutableLiveData<List<Shopcart>>()
     val updateResponse = MutableLiveData<Response<Shopcart>>()
+    val product : MutableLiveData<Response<List<User>>> = MutableLiveData()
+
+    fun fetch(){
+
+        viewModelScope.launch {
+
+        }
+    }
+
     fun addshopcart(shopcart: Shopcart){
         viewModelScope.launch {
             try{

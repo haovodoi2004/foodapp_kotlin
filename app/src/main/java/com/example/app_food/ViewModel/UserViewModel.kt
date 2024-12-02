@@ -1,26 +1,55 @@
 package com.example.app_food.ViewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app_food.ApiServer.Apiserver
 import com.example.app_food.Model.User
-import com.example.app_food.Repository.Repository
+import com.example.app_food.Retrofit.RetrofitInstance
+
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
 
-class UserViewModel(private val repository: Repository) : ViewModel(){
+class UserViewModel : ViewModel(){
     val datauser : MutableLiveData<Response<User>> = MutableLiveData()
     val loginResponse : MutableLiveData<Response<User>> = MutableLiveData()
     private val _loginStatus = MutableLiveData<Boolean>()
     val loginStatus: MutableLiveData<Boolean> = MutableLiveData()
     val loginErrorMessage: MutableLiveData<String> = MutableLiveData()
+    val user = MutableLiveData<List<User>>()
+
+    fun deleteUser(email : String) {
+        viewModelScope.launch {
+            val respone = RetrofitInstance.api.deleteuser(email)
+            try {
+                if (respone.isSuccessful) {
+                    fetch()
+                } else {
+                    Log.e("API delete user ", " Error ${respone.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun fetch (){
+        viewModelScope.launch {
+            val respone = RetrofitInstance.api.getlistuser()
+            if(respone.isEmpty()){
+                user.postValue(emptyList())
+            }else{
+                user.postValue(respone)
+            }
+        }
+    }
 
     fun addUser(user:User){
         viewModelScope.launch {
-            val response=repository.addser(user)
+            val response=RetrofitInstance.api.adduser(user)
             datauser.value=response
         }
     }
@@ -28,7 +57,7 @@ class UserViewModel(private val repository: Repository) : ViewModel(){
     // Hàm đăng nhập
     fun login(user: User) {
         viewModelScope.launch {
-            val response = repository.login(user)
+            val response = RetrofitInstance.api.login(user)
             if (response.isSuccessful && response.body() != null) {
                 loginStatus.value = true  // Đăng nhập thành công
 

@@ -4,8 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app_food.Model.Oder
-import com.example.app_food.Model.User
-import com.example.app_food.Repository.Repository
+
 import com.example.app_food.Retrofit.RetrofitInstance
 import kotlinx.coroutines.launch
 import retrofit2.Response

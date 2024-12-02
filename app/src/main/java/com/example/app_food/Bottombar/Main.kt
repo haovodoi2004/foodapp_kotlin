@@ -1,5 +1,6 @@
 package com.example.app_food.Bottombar
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -22,9 +23,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.app_food.Screen.Home
+import com.example.app_food.ViewModel.ProViewModel
+import com.example.app_food.ViewModel.ProtypeViewModel
 
 @Composable
-fun MainScreen(navController: NavController) {
+fun MainScreen(navController: NavController,proViewModel: ProViewModel,protypeViewModel: ProtypeViewModel) {
     val navItemList = listOf(
         NavItem("Home", Icons.Default.Home,0),
         NavItem("Notification", Icons.Default.Notifications,0),
@@ -62,14 +65,15 @@ fun MainScreen(navController: NavController) {
             }
         }
     ) { innerPadding ->
-        ContentScreen(modifier = Modifier.padding(innerPadding),selectedIdex, navController = navController)
+        ContentScreen(modifier = Modifier.padding(innerPadding),selectedIdex, navController = navController,proViewModel,protypeViewModel)
     }
 }
 
+@SuppressLint("NewApi")
 @Composable
-fun ContentScreen(modifier: Modifier=Modifier,selectedIndex:Int,navController: NavController){
+fun ContentScreen(modifier: Modifier=Modifier,selectedIndex:Int,navController: NavController,proViewModel: ProViewModel,protypeViewModel: ProtypeViewModel){
     when(selectedIndex){
-        0-> Home(navController)
+        0-> Home(navController,proViewModel,protypeViewModel)
         3-> Shopcart(navController)
     }
 }

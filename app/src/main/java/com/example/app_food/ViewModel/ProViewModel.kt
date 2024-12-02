@@ -11,23 +11,23 @@ import kotlinx.coroutines.launch
 import retrofit2.Response
 
 class ProViewModel:ViewModel() {
-    val proo : MutableLiveData<Response<List<Product>>> = MutableLiveData()
+
     private val _product = MutableLiveData<Product>()
     val product: LiveData<Product> = _product
-    val Product= MutableLiveData<List<Product>>()
+    val Product: MutableLiveData<List<Product>> = MutableLiveData()
 
-    fun fetchProduct(){
+    fun fetchProduct() {
         viewModelScope.launch {
             try {
-                val respone=RetrofitInstance.api.getproduct()
-               if(respone.isNotEmpty()){
-                   Product.postValue(respone)
-               }else{
-                   Product.postValue(emptyList())
-               }
-            }catch (e:Exception){
-                Log.e("phản hồi danh sách sản phẩm","Error : ${e.localizedMessage}",e)
-                e.printStackTrace()
+                val response = RetrofitInstance.api.getproduct()
+                if (response.isNotEmpty()) {
+                    Product.postValue(response)
+                } else {
+                    Product.postValue(emptyList())
+                }
+            } catch (e: Exception) {
+                Log.e("Error", e.localizedMessage ?: "Unknown Error", e)
+                Product.postValue(emptyList())
             }
         }
     }

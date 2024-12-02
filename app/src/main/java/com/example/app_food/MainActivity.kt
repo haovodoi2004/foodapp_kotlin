@@ -26,19 +26,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.app_food.Screen.Home
-import com.example.app_food.Repository.Repository
 import com.example.app_food.Screen.Sigin
 import com.example.app_food.Screen.Sigup
 import com.example.app_food.Bottombar.MainScreen
 import com.example.app_food.BottombarAdmin.LearnNavDrawer
 import com.example.app_food.Screen.ProductDetail
+import com.example.app_food.ViewModel.ProViewModel
+import com.example.app_food.ViewModel.ProtypeViewModel
 import com.example.app_food.ViewModel.UserViewModel
-import com.example.app_food.ViewModel.UserViewModelFactory
 
 class MainActivity : ComponentActivity() {
-    private val userViewModel:UserViewModel by viewModels {
-        UserViewModelFactory(Repository())
-    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -48,27 +46,27 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("NewApi")
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun AppNavigation(){
+    fun AppNavigation(proViewModel: ProViewModel=ProViewModel(),protypeViewModel: ProtypeViewModel=ProtypeViewModel()){
         val navController= rememberNavController()
         val context= LocalContext.current
         NavHost(navController=navController, startDestination = "mainadmin") {
             composable("signin"){
-                Sigin(userViewModel = userViewModel,onSignupClick={
+                Sigin(onSignupClick={
                     navController.navigate("signup")
                 },navController)
             }
             composable("signup"){
-               Sigup(navController,userViewModel = userViewModel)
+               Sigup(navController)
             }
             composable("home"){
-                Home(navController)
+                Home(navController,proViewModel,protypeViewModel)
             }
             composable("mainadmin"){
                 LearnNavDrawer()
             }
 
             composable("main"){
-                MainScreen(navController)
+                MainScreen(navController,proViewModel,protypeViewModel)
             }
             composable(
                 route = "productDetail/{productId}",

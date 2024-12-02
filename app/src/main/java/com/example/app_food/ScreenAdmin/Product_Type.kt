@@ -52,7 +52,7 @@ fun Productype(viewModel: ProtypeViewModel= ProtypeViewModel()){
         }
     }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter){
-        Column(horizontalAlignment = Alignment.CenterHorizontally, ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally ) {
             Text(
                 text = "Danh sách loại sản phẩm",
                 fontWeight = FontWeight.Bold,
