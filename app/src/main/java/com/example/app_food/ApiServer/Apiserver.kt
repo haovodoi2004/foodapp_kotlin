@@ -75,6 +75,9 @@ interface Apiserver {
     @GET("us/getlistuser")
     suspend fun getlistuser() : List<User>
 
-    @DELETE("us/deleteuser/{email}")
-    suspend fun deleteuser(@Path("email") email: String) : Response<User>
+    @DELETE("us/deleteuser/{id}")
+    suspend fun deleteuser(@Path("id") email: String) : Response<User>
+
+    @PUT("us/edituser/{id}")
+    suspend fun updateuser(@Path("id") id : String , @Body user: User) : Response<User>
 }

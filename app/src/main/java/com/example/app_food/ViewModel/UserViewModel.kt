@@ -21,9 +21,25 @@ class UserViewModel : ViewModel(){
     val loginErrorMessage: MutableLiveData<String> = MutableLiveData()
     val user = MutableLiveData<List<User>>()
 
-    fun deleteUser(email : String) {
+    fun updateUser(id : String , user: User) {
         viewModelScope.launch {
-            val respone = RetrofitInstance.api.deleteuser(email)
+            val respone = RetrofitInstance.api.updateuser(id,user)
+            try {
+                if (respone.isSuccessful) {
+                    fetch()
+                } else {
+                    Log.e("API update user ", " Error ${respone.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+
+    fun deleteUser(id : String) {
+        viewModelScope.launch {
+            val respone = RetrofitInstance.api.deleteuser(id)
             try {
                 if (respone.isSuccessful) {
                     fetch()
