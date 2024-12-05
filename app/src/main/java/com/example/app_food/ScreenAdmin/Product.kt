@@ -22,13 +22,19 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.elevatedCardElevation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -49,7 +55,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.app_food.Model.Product
 import com.example.app_food.Model.Protype
@@ -63,60 +68,184 @@ fun Product(
     protypeViewModel: ProtypeViewModel,
 ) {
     val listProtype by protypeViewModel.protypeItems.observeAsState(initial = emptyList())
-    val listproduct by productViewModel.Product.observeAsState(initial = emptyList())
+    val listProduct by productViewModel.Product.observeAsState(initial = emptyList())
     var selectedCategory by remember { mutableStateOf("") }
-    var filteredProducts by remember { mutableStateOf(listproduct) } // State để lưu danh sách đã lọc
-
-    LaunchedEffect(true) {
-        if(listproduct.isEmpty()){
-            productViewModel.fetchProduct()
-        }
-    }
-
+    var filteredProducts by remember { mutableStateOf(listProduct) } // Danh sách đã lọc
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedId by remember { mutableStateOf("") }
+    var show by remember { mutableStateOf(false) }
+    // Fetch dữ liệu khi cần
     LaunchedEffect(Unit) {
-        if(listProtype.isEmpty()){
-            protypeViewModel.fetchProtype()
-        }
+        if (listProduct.isEmpty()) productViewModel.fetchProduct()
+        if (listProtype.isEmpty()) protypeViewModel.fetchProtype()
     }
 
-    // Lọc danh sách sản phẩm khi danh mục thay đổi
-    LaunchedEffect(selectedCategory, listproduct) {
+    // Lọc danh sách sản phẩm theo danh mục
+    LaunchedEffect(selectedCategory, listProduct) {
         filteredProducts = if (selectedCategory.isEmpty()) {
-            listproduct
+            listProduct
         } else {
-            listproduct.filter { it.category == selectedCategory }
+            listProduct.filter { it.category == selectedCategory }
         }
     }
-
-
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Giao diện chọn danh mục
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Giao diện danh mục
             dropMenu(
-                listProtype,
+                listProtype = listProtype,
                 selectedCategory = selectedCategory,
-                onCategorySelected = { category ->
-                    selectedCategory = category
-                },
+                onCategorySelected = { category -> selectedCategory = category }
             )
-            // Hiển thị danh sách sản phẩm đã lọc
-            listProduct(filteredProducts,onButtonClick)
 
+            // Danh sách sản phẩm
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f) // Để LazyColumn tự điều chỉnh chiều cao
+                    .padding(horizontal = 16.dp)
+            ) {
+                items(filteredProducts, key = { it.id!! }) { product ->
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = {
+                            if (it == SwipeToDismissBoxValue.EndToStart) {
+                                showDialog = true
+                                selectedId = product.id!!
+                                false
+                            } else {
+                                false
+                            }
+                        }
+                    )
+
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        backgroundContent = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Red)
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                Text(text = "Delete", color = Color.White, fontSize = 16.sp)
+                            }
+                        }
+                    ) {
+                        productItem(product = product, onButton = onButtonClick,listProtype)
+                    }
+                }
+            }
         }
-        IconButton(onClick = {}, modifier = Modifier.align(alignment = Alignment.BottomEnd).background(color = Color(0xFF673AB7), shape = CircleShape)) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "")
+
+        // Nút thêm sản phẩm
+        IconButton(
+            onClick = { show=true },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+                .background(Color(0xFF673AB7), shape = CircleShape)
+        ) {
+            Icon(imageVector = Icons.Default.Add, contentDescription = "Add Product", tint = Color.White)
+        }
+
+        // Dialog xác nhận xóa
+        if (showDialog) {
+            productDelete(
+                onDismiss = { showDialog = false },
+                onConfirm = {
+                    productViewModel.deleteProduct(selectedId)
+                    showDialog = false
+                }
+            )
+        }
+
+        if(show){
+            productAdd(onDismiss = { show=false},listProtype=listProtype, productViewModel = ProViewModel())
         }
     }
 }
 
+@Composable
+fun productAdd(onDismiss : ()-> Unit,listProtype : List<Protype>,productViewModel: ProViewModel){
+    var name by remember { mutableStateOf("") }
+    var price by remember { mutableStateOf(0) }
+    var avatar by remember { mutableStateOf("") }
+    var infor by remember { mutableStateOf("") }
+    var quantity by remember { mutableStateOf(0) }
+    var selectedCategory by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = {
+            Text(text = "Thêm sản phẩm")
+        },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text(text = "Tên sản phẩm") })
+                OutlinedTextField(
+                    value = price.toString(),
+                    onValueChange = { price = it.toIntOrNull() ?: price },
+                    label = { Text(text = "Giá sản phẩm") })
+                DropMenu(listProtype = listProtype, selectedCategory = selectedCategory, onCategorySelected = {selectedCategory=it})
+                OutlinedTextField(
+                    value = avatar,
+                    onValueChange = { avatar = it },
+                    label = { Text(text = "Link ảnh") },
+                    maxLines = 3)
+                OutlinedTextField(
+                    value = infor,
+                    onValueChange = { infor = it },
+                    label = { Text(text = "Thông tin sản phẩm") },
+                    maxLines = 3)
+                OutlinedTextField(
+                    value = quantity.toString(),
+                    onValueChange = { quantity = it.toIntOrNull()?:quantity },
+                    label = { Text(text = "Số lượng") })
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                val pro = Product("",name,price,avatar,infor,selectedCategory,quantity)
+                onDismiss()
+                productViewModel.addProduct(pro)
+            }) {
+                Text(text = "Kê")
+            }
+        },
+        dismissButton = {
+            Button(onClick = {onDismiss()}) {
+                Text(text = "Hủy")
+            }
+        })
+}
 
 @Composable
-fun productItem(product: Product,onButton : (String) -> Unit){
-    Card(modifier = Modifier.fillMaxWidth(0.8f).padding(8.dp), onClick = {
+fun productDelete(onDismiss : ()-> Unit,onConfirm : ()-> Unit){
+    AlertDialog(
+        onDismissRequest = { onDismiss },
+        title = { Text(text = "THông báo") },
+        text = { Text(text = "Bạn có muốn xóa ko") },
+        dismissButton = {
+            Button(onClick = {}) {
+                Text(text = "Hủy")
+            }
+        },
+        confirmButton = {
+            Button(onClick = {onConfirm()}) {
+                Text(text = "Ok")
+            }
+        })
+}
+
+@Composable
+fun productItem(product: Product,onButton : (String) -> Unit,list : List<Protype>){
+    Card(modifier = Modifier
+        .fillMaxWidth()
+        .padding(8.dp)
+        .background(Color.White), onClick = {
         onButton(product.id)
     }) {
         Column() {
@@ -125,7 +254,7 @@ fun productItem(product: Product,onButton : (String) -> Unit){
                 model = product.avatar,  // Đường dẫn URL của ảnh
                 contentDescription = product.name,
                 modifier = Modifier
-                    .fillMaxWidth(1f)
+                    .fillMaxWidth()
                     .heightIn(max = LocalConfiguration.current.screenHeightDp.dp * 0.15f), // Giới hạn chiều cao tối đa,  // Đảm bảo ảnh vuông, chiếm hết chiều rộng
                 contentScale = ContentScale.Crop  // Để ảnh cắt vừa khung
 
@@ -137,19 +266,10 @@ fun productItem(product: Product,onButton : (String) -> Unit){
 }
 
 @Composable
-fun listProduct(producList : List<Product>,onButton : (String)->Unit){
-
-    LazyColumn() {
-        items(producList){
-            pro->
-            productItem(pro,onButton)
-        }
-    }
-}
-
-@Composable
 fun CategoryItems(title: String,onSelect : (String) -> Unit){
-    Row(modifier = Modifier.fillMaxWidth().clickable { onSelect(title) }) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .clickable { onSelect(title) }) {
         Text(text = title, fontSize = 16.sp)
     }
 }
@@ -188,8 +308,9 @@ fun dropMenu(listProtype : List<Protype>,selectedCategory: String,
                             width = 1.8.dp,
                             color = Color.Black,
                             shape = RoundedCornerShape(15.dp)
-                        ).onGloballyPositioned { coordinates ->
-                            textFliedSize=coordinates.size.toSize()
+                        )
+                        .onGloballyPositioned { coordinates ->
+                            textFliedSize = coordinates.size.toSize()
 
                         },
                         value = selectedCategory, // Hiển thị giá trị đã chọn

@@ -80,4 +80,5 @@ dependencies {
     implementation ("androidx.compose.runtime:runtime-livedata:1.7.5")
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation ("androidx.compose.foundation:foundation:1.7.5")
+    implementation("androidx.compose.material:material-icons-extended-android:1.7.5")
 }

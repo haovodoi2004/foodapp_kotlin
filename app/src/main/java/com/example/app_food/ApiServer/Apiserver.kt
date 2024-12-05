@@ -80,4 +80,10 @@ interface Apiserver {
 
     @PUT("us/edituser/{id}")
     suspend fun updateuser(@Path("id") id : String , @Body user: User) : Response<User>
+
+    @DELETE("product/deleteproduct/{id}")
+    suspend fun deleteproduct(@Path("id") id : String) : Response<Product>
+
+    @POST("product/addproduct")
+    suspend fun addproductt(@Body product: Product) : Response<Product>
 }

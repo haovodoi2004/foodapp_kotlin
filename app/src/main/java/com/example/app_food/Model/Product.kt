@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 class Product (
     @SerializedName("_id") val id: String,
+//    @SerializedName("_id") val id: String? = null, // Giá trị mặc định là null
     val name: String,
     val price: Number,
     val avatar: String,

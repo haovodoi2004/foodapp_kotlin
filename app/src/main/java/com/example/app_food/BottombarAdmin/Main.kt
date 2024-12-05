@@ -54,6 +54,7 @@ import com.example.app_food.ScreenAdmin.Product
 import com.example.app_food.ScreenAdmin.Productype
 import com.example.app_food.ScreenAdmin.User
 import com.example.app_food.ScreenAdmin.productDetailAdmin
+import com.example.app_food.Toptab.Main
 import com.example.app_food.ViewModel.ProViewModel
 import com.example.app_food.ViewModel.ProtypeViewModel
 import com.example.app_food.ViewModel.UserViewModel
@@ -189,14 +190,14 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
                     navigationController.navigate("productDetail/$productId")}, productViewModel = ProViewModel, protypeViewModel = ProtypeViewModel)
             }
                 composable(Screens.User.screen) { User(userViewModel)  }
-                composable(Screens.Oder.screen) { Oder()  }
+                composable(Screens.Oder.screen) { Main()  }
                 composable(Screens.New.screen) { New()  }
             composable(
                 "productDetail/{productId}",
                 arguments = listOf(navArgument("productId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val productId = backStackEntry.arguments?.getString("productId") ?: ""
-                productDetailAdmin(productId,navigationController)
+                productDetailAdmin(productId,navigationController, protypeViewModel = ProtypeViewModel, viewModel = ProViewModel)
             }
             }
         }

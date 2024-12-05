@@ -22,7 +22,7 @@ class ProtypeViewModel : ViewModel() {
                 if (response.isNotEmpty()) {
                     protypeItems.postValue(response)
                 } else {
-                    protypeItems.postValue(emptyList())
+                    protypeItems.postValue(response)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

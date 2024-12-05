@@ -14,7 +14,37 @@ class ProViewModel:ViewModel() {
 
     private val _product = MutableLiveData<Product>()
     val product: LiveData<Product> = _product
-    val Product: MutableLiveData<List<Product>> = MutableLiveData()
+    val Product= MutableLiveData<List<Product>>()
+
+    fun addProduct(pro: Product){
+        viewModelScope.launch {
+            try {
+                val respone = RetrofitInstance.api.addproductt(pro)
+                if(respone.isSuccessful){
+                    val updatedList = RetrofitInstance.api.getproduct()
+                    Product.postValue(updatedList)
+                    fetchProduct()
+                }
+            }catch (e:Exception){
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun deleteProduct(id : String){
+        viewModelScope.launch {
+            try {
+                val respone= RetrofitInstance.api.deleteproduct(id)
+                if(respone.isSuccessful){
+                    fetchProduct()
+                }else{
+
+                }
+            }catch (e : Exception){
+                e.printStackTrace()
+            }
+        }
+    }
 
     fun fetchProduct() {
         viewModelScope.launch {
