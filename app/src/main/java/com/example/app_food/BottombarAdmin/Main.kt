@@ -48,13 +48,14 @@ import com.example.app_food.R
 import com.example.app_food.Screen.ProductDetail
 import com.example.app_food.ScreenAdmin.Home
 import com.example.app_food.ScreenAdmin.New
-import com.example.app_food.ScreenAdmin.Oder
 import com.example.app_food.ScreenAdmin.Product
 
 import com.example.app_food.ScreenAdmin.Productype
+import com.example.app_food.ScreenAdmin.Turnover
 import com.example.app_food.ScreenAdmin.User
 import com.example.app_food.ScreenAdmin.productDetailAdmin
 import com.example.app_food.Toptab.Main
+import com.example.app_food.ViewModel.OderViewModel
 import com.example.app_food.ViewModel.ProViewModel
 import com.example.app_food.ViewModel.ProtypeViewModel
 import com.example.app_food.ViewModel.UserViewModel
@@ -65,7 +66,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "NewApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: ProViewModel=ProViewModel(),ProtypeViewModel: ProtypeViewModel=ProtypeViewModel()) {
+fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: ProViewModel=ProViewModel(),ProtypeViewModel: ProtypeViewModel=ProtypeViewModel(),OderViewModel: OderViewModel= OderViewModel()) {
     val navigationController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -107,7 +108,19 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
                         coroutineScope.launch {
                             drawerState.close()
                         }
-                        navigationController.navigate(Screens.ProductType.screen){
+                        navigationController.navigate(Screens.Turnover.screen){
+                            popUpTo(0)
+                        }
+                    })
+
+                NavigationDrawerItem(label = { Text(text = "Turnover" , color = Color.Black) },
+                    selected = false,
+                    icon = { Icon(painter = painterResource(R.drawable.grow), contentDescription = "", tint = Color.Black,modifier = Modifier.size(30.dp))},
+                    onClick = {
+                        coroutineScope.launch {
+                            drawerState.close()
+                        }
+                        navigationController.navigate(Screens.Turnover.screen){
                             popUpTo(0)
                         }
                     })
@@ -190,8 +203,9 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
                     navigationController.navigate("productDetail/$productId")}, productViewModel = ProViewModel, protypeViewModel = ProtypeViewModel)
             }
                 composable(Screens.User.screen) { User(userViewModel)  }
-                composable(Screens.Oder.screen) { Main()  }
+                composable(Screens.Oder.screen) { Main(OderViewModel,ProViewModel)  }
                 composable(Screens.New.screen) { New()  }
+            composable(Screens.Turnover.screen) { Turnover()  }
             composable(
                 "productDetail/{productId}",
                 arguments = listOf(navArgument("productId") { type = NavType.StringType })

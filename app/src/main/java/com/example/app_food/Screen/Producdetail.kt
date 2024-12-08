@@ -362,6 +362,7 @@ fun OderPro(
     viewModel: OderViewModel = OderViewModel()
 ) {
     val oder = Oder(
+        id = "",
         name = name,
         phone = phone,
         id_pro = idpro,

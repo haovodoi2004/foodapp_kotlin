@@ -7,4 +7,5 @@ sealed class Screens(val screen : String) {
     data object Oder: Screens ("Oder")
     data object User: Screens("User")
     data object New : Screens("New")
+    data object Turnover : Screens("turnover")
 }
