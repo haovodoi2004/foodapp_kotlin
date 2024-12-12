@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -37,24 +36,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.app_food.R
-import com.example.app_food.Screen.ProductDetail
 import com.example.app_food.ScreenAdmin.Home
 import com.example.app_food.ScreenAdmin.New
+import com.example.app_food.ScreenAdmin.Newdetail
 import com.example.app_food.ScreenAdmin.Product
 
 import com.example.app_food.ScreenAdmin.Productype
 import com.example.app_food.ScreenAdmin.Turnover
-import com.example.app_food.ScreenAdmin.User
 import com.example.app_food.ScreenAdmin.productDetailAdmin
 import com.example.app_food.Toptab.Main
+import com.example.app_food.Toptab.Mainuser
+import com.example.app_food.ViewModel.NewViewModel
 import com.example.app_food.ViewModel.OderViewModel
 import com.example.app_food.ViewModel.ProViewModel
 import com.example.app_food.ViewModel.ProtypeViewModel
@@ -66,7 +64,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "NewApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: ProViewModel=ProViewModel(),ProtypeViewModel: ProtypeViewModel=ProtypeViewModel(),OderViewModel: OderViewModel= OderViewModel()) {
+fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: ProViewModel=ProViewModel(),ProtypeViewModel: ProtypeViewModel=ProtypeViewModel(),OderViewModel: OderViewModel= OderViewModel(),newViewModel: NewViewModel=NewViewModel()) {
     val navigationController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -108,7 +106,7 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
                         coroutineScope.launch {
                             drawerState.close()
                         }
-                        navigationController.navigate(Screens.Turnover.screen){
+                        navigationController.navigate(Screens.ProductType.screen){
                             popUpTo(0)
                         }
                     })
@@ -197,15 +195,17 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
         }) {paddingValues ->
         NavHost(navController =  navigationController, startDestination = Screens.Home.screen, modifier = Modifier.padding(paddingValues)){
                 composable(Screens.Home.screen){ Home() }
-                composable(Screens.ProductType.screen){ Productype()  }
+                composable(Screens.ProductType.screen){ Productype(ProtypeViewModel)  }
             composable(Screens.Product.screen) {
                 Product(onButtonClick = { productId ->
                     navigationController.navigate("productDetail/$productId")}, productViewModel = ProViewModel, protypeViewModel = ProtypeViewModel)
             }
-                composable(Screens.User.screen) { User(userViewModel)  }
+                composable(Screens.User.screen) { Mainuser(userViewModel)  }
                 composable(Screens.Oder.screen) { Main(OderViewModel,ProViewModel)  }
-                composable(Screens.New.screen) { New()  }
-            composable(Screens.Turnover.screen) { Turnover()  }
+                composable(Screens.New.screen) { New(onClick = {
+                    newId->
+                    navigationController.navigate("newDetail/$newId")},newViewModel, navController = navigationController)  }
+            composable(Screens.Turnover.screen) { Turnover(OderViewModel,ProViewModel)  }
             composable(
                 "productDetail/{productId}",
                 arguments = listOf(navArgument("productId") { type = NavType.StringType })
@@ -213,7 +213,15 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
                 val productId = backStackEntry.arguments?.getString("productId") ?: ""
                 productDetailAdmin(productId,navigationController, protypeViewModel = ProtypeViewModel, viewModel = ProViewModel)
             }
+
+            composable(
+                "newDetail/{newId}",
+                arguments = listOf(navArgument("newId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val productId = backStackEntry.arguments?.getString("newId") ?: ""
+                Newdetail(productId,navigationController, viewModel = newViewModel)
             }
+        }
         }
     }
 }

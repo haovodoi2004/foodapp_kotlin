@@ -43,10 +43,10 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.app_food.ViewModel.ProtypeViewModel
 
 @Composable
-fun Productype(viewModel: ProtypeViewModel= ProtypeViewModel()){
+fun Productype(viewModel: ProtypeViewModel){
     val protypeItems by viewModel.protypeItems.observeAsState(initial = emptyList())
     var showdialog by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(protypeItems) {
         if(protypeItems.isEmpty()){
             viewModel.fetchProtype()
         }
@@ -65,7 +65,9 @@ fun Productype(viewModel: ProtypeViewModel= ProtypeViewModel()){
                 } else {
                     LazyColumn {
                         items(protypeItems) { protype ->
-                            ProtypeItem(protype,viewModel)
+                            if(protype.status.toInt()==0) {
+                                ProtypeItem(protype, viewModel)
+                            }
                         }
                     }
                 }
@@ -102,9 +104,9 @@ fun updateDialog(show : Boolean , onDissmiss: () -> Unit , protye: Protype , pro
             }
         }, confirmButton = {
             Button(onClick = {
-                val pro = Protype(name)
+                val pro = Protype(name,0)
                 protypeViewModel.updateprotype(protye.name, pro)
-                onDissmiss()
+
             }) {
                 Text(text = "Ok")
             }
@@ -124,7 +126,8 @@ fun deleteDialog(show: Boolean, onDissmiss: () -> Unit, name : String,protypeVie
             }
         },
         confirmButton = {
-            Button(onClick = {protypeViewModel.deleteprotype(name)
+            val protype = Protype(name,1)
+            Button(onClick = {protypeViewModel.updateprotype(name,protype)
             onDissmiss()}) {
                 Text(text = "Ok")
             }
@@ -156,7 +159,7 @@ fun modalDialog(show : Boolean,onDissmiss : ()-> Unit,protypeViewModel: ProtypeV
                     if(number==1){
                         Toast.makeText(context,"Loại sản phầm này đã tồn tại",Toast.LENGTH_LONG).show()
                     }else{
-                        val protype=Protype(nameprotype)
+                        val protype=Protype(nameprotype,0)
                         protypeViewModel.addprotype(protype)
                         onDissmiss()
                         Toast.makeText(context,"Thêm thành công ${nameprotype}",Toast.LENGTH_LONG).show()

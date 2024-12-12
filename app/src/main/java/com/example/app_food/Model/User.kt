@@ -8,5 +8,6 @@ data class User (
     val password:String,
     val name:String,
     val address:String,
-    val sex:Int
+    val sex:Int,
+    val status : Int
     )

@@ -116,7 +116,7 @@ fun Sigin(onSignupClick: () -> Unit,navController: NavController,userViewModel: 
 
         Button(
             onClick = {
-                val user = User("",email, password, "","",0)
+                val user = User("",email, password, "","",0,0)
                 userViewModel.login(user)
             },
             modifier = Modifier.fillMaxWidth(),

@@ -221,7 +221,7 @@ fun OpenDialogShop(show: Boolean, onDissMiss: () -> Unit,pro : Product,shopcart 
                     onDissMiss()
                     val oder = Oder("",name,phone,pro.id,shopcart.quantity.toInt(),shopcart.all.toInt(),address,0,formattedDateTime)
                     oderviewmodel.addOder(oder)
-                    val pro = Product(pro.id,pro.name,pro.price.toInt(),pro.avatar,pro.infor,pro.category,pro.quantity.toInt()-shopcart.quantity.toInt())
+                    val pro = Product(pro.id,pro.name,pro.price.toInt(),pro.avatar,pro.infor,pro.category,pro.quantity.toInt()-shopcart.quantity.toInt(),0)
                     ProViewModel.updateProduct(pro.id,pro)
                     shopcartViewModel.deleteShopcart(pro.id)
 

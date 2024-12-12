@@ -175,7 +175,8 @@ fun Sigup(navController: NavController, userViewModel: UserViewModel=UserViewMod
                                 password = password,
                                 name = name,
                                 address = address,
-                                sex = sex
+                                sex = sex,
+                                status = 0
                             )
                         )
                     } else {

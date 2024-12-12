@@ -137,6 +137,12 @@ fun NewItem(new: New?) {
 
 @Composable
 fun Even(viewModel: NewViewModel = NewViewModel()) {
+    val listnew by viewModel.NewItems.observeAsState(initial = emptyList())
+    LaunchedEffect(listnew) {
+        if(listnew.isEmpty()){
+            viewModel.fetchNew()
+        }
+    }
     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "Up Coming Even",
@@ -161,7 +167,7 @@ fun Even(viewModel: NewViewModel = NewViewModel()) {
             .fillMaxWidth()
             .heightIn(max = LocalConfiguration.current.screenHeightDp.dp * 0.3f)
     ) { // Giới hạn chiều cao tối đa) {
-        items(viewModel.NewItems) { newitem -> NewItem(newitem) }
+        items(listnew, key = {it.id!!}) { newitem -> NewItem(newitem) }
     }
 }
 

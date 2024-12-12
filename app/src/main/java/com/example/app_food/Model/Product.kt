@@ -10,5 +10,6 @@ class Product (
     val avatar: String,
     val infor: String,
     val category: String,
-    val quantity:Number
+    val quantity:Number,
+    val status:Number
 )

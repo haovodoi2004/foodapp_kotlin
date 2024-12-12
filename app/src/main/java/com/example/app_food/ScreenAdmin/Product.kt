@@ -74,8 +74,18 @@ fun Product(
     var showDialog by remember { mutableStateOf(false) }
     var selectedId by remember { mutableStateOf("") }
     var show by remember { mutableStateOf(false) }
+    var produc = Product(
+        id = "",
+        name = "",
+        price = 0,
+        avatar = "",
+        infor = "",
+        category = "",
+        quantity = 0,
+        status = 0
+    )
     // Fetch dữ liệu khi cần
-    LaunchedEffect(Unit) {
+    LaunchedEffect(listProduct) {
         if (listProduct.isEmpty()) productViewModel.fetchProduct()
         if (listProtype.isEmpty()) protypeViewModel.fetchProtype()
     }
@@ -111,6 +121,7 @@ fun Product(
                             if (it == SwipeToDismissBoxValue.EndToStart) {
                                 showDialog = true
                                 selectedId = product.id!!
+                                produc=product
                                 false
                             } else {
                                 false
@@ -132,7 +143,9 @@ fun Product(
                             }
                         }
                     ) {
-                        productItem(product = product, onButton = onButtonClick,listProtype)
+                        if(product.status.toInt()==0){
+                            productItem(product = product, onButton = onButtonClick,listProtype)
+                        }
                     }
                 }
             }
@@ -154,7 +167,20 @@ fun Product(
             productDelete(
                 onDismiss = { showDialog = false },
                 onConfirm = {
-                    productViewModel.deleteProduct(selectedId)
+
+                        val pro = Product(
+                            selectedId,
+                            produc.name,
+                            produc.price,
+                            produc.avatar,
+                            produc.infor,
+                            produc.category,
+                            produc.quantity,
+                            1
+                        )
+                        productViewModel.updateProduct(selectedId, pro)
+
+
                     showDialog = false
                 }
             )
@@ -208,7 +234,7 @@ fun productAdd(onDismiss : ()-> Unit,listProtype : List<Protype>,productViewMode
         },
         confirmButton = {
             Button(onClick = {
-                val pro = Product("",name,price,avatar,infor,selectedCategory,quantity)
+                val pro = Product("",name,price,avatar,infor,selectedCategory,quantity,0)
                 onDismiss()
                 productViewModel.addProduct(pro)
             }) {
@@ -225,11 +251,11 @@ fun productAdd(onDismiss : ()-> Unit,listProtype : List<Protype>,productViewMode
 @Composable
 fun productDelete(onDismiss : ()-> Unit,onConfirm : ()-> Unit){
     AlertDialog(
-        onDismissRequest = { onDismiss },
+        onDismissRequest = { onDismiss() },
         title = { Text(text = "THông báo") },
         text = { Text(text = "Bạn có muốn xóa ko") },
         dismissButton = {
-            Button(onClick = {}) {
+            Button(onClick = {onDismiss()}) {
                 Text(text = "Hủy")
             }
         },

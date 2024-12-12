@@ -8,7 +8,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -274,7 +273,7 @@ fun productEdit(onDismiss: () -> Unit, proViewModel: ProViewModel,product: Produ
         }
         }, confirmButton = {
             Button(onClick = {
-                val product = Product(product.id,name,price,avatar,infor,selectedCategory,quantity)
+                val product = Product(product.id,name,price,avatar,infor,selectedCategory,quantity,0)
                 onDismiss()
                 proViewModel.updateProduct(product.id,product)
             }) {
