@@ -75,6 +75,7 @@ fun productDetailAdmin(
     val protypelist by protypeViewModel.protypeItems.observeAsState(initial = emptyList())
 
     LaunchedEffect(produc) {
+
         viewModel.getProById(produc)
         Toast.makeText(context, "id sản phẩm là ${produc}", Toast.LENGTH_SHORT).show()
     }
@@ -180,13 +181,14 @@ fun DropMenu(
     selectedCategory: String,
     onCategorySelected: (String) -> Unit
 ) {
+
     var expanded by remember { mutableStateOf(false) } // Trạng thái mở rộng menu
 
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded } // Toggle trạng thái
     ) {
-        // TextField đóng vai trò là anchor cho dropdown
+
         OutlinedTextField(
             value = selectedCategory.ifEmpty { "Chọn loại sản phẩm" },
             onValueChange = {},
@@ -253,20 +255,22 @@ fun productEdit(onDismiss: () -> Unit, proViewModel: ProViewModel,product: Produ
             OutlinedTextField(
                 value = price.toString(),
                 onValueChange = { price = it.toInt() },
-                label = { Text(text = "Tên sản phẩm") })
+                label = { Text(text = "Giá sản phẩm") })
                 DropMenu(listProtype = list, selectedCategory = selectedCategory, onCategorySelected = {selectedCategory=it})
             OutlinedTextField(
                 value = avatar,
                 onValueChange = { avatar = it },
-                label = { Text(text = "Tên sản phẩm") })
+                label = { Text(text = "Link ảnh") },
+                maxLines = 1)
             OutlinedTextField(
                 value = infor,
                 onValueChange = { infor = it },
-                label = { Text(text = "Tên sản phẩm") })
+                maxLines = 3,
+                label = { Text(text = "Thông tin sản phẩm") })
             OutlinedTextField(
                 value = quantity.toString(),
                 onValueChange = { quantity = it.toInt() },
-                label = { Text(text = "Tên sản phẩm") })
+                label = { Text(text = "Số lượng sản phẩm") })
     }}, dismissButton = {
         Button(onClick = {onDismiss()}) {
             Text(text = "Hủy")

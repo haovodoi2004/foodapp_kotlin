@@ -1,16 +1,28 @@
 package com.example.app_food.Toptab
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+
+
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -25,13 +37,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.app_food.Model.Oder
+import com.example.app_food.Model.Product
+import com.example.app_food.ScreenAdmin.oderItem
 import com.example.app_food.ViewModel.OderViewModel
 import com.example.app_food.ViewModel.ProViewModel
 
@@ -117,7 +135,7 @@ fun Oder1(oderViewModel: OderViewModel, proViewModel: ProViewModel) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(oderlist, key = { it.id }) { item ->
                     if (item.status == 0) {
-                        oderitem(item, oderViewModel, proViewModel)
+                        OderItem(item, oderViewModel, proViewModel)
                     }
                 }
             }
@@ -126,130 +144,143 @@ fun Oder1(oderViewModel: OderViewModel, proViewModel: ProViewModel) {
 }
 
 @Composable
-fun oderitem(oder: Oder, oderViewModel: OderViewModel, proViewModel: ProViewModel) {
+fun OderItem(oder: Oder, oderViewModel: OderViewModel, proViewModel: ProViewModel) {
     val product = proViewModel.products.value[oder.id_pro]
+
     LaunchedEffect(oder.id_pro) {
         if (product == null) {
             proViewModel.gettProById(oder.id_pro)
         }
     }
 
-    Card(modifier = Modifier
-        .fillMaxWidth()
-        .padding(8.dp)) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            AsyncImage(
-                model = product?.avatar,
-                contentDescription = "Product Image",
-                modifier = Modifier.size(100.dp),
-                contentScale = ContentScale.Crop
-            )
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text(text = "Tên đơn hàng: ${oder.name}")
-                Text(text = "Ngày: ${oder.date}")
-                product?.let {
-                    Text(text = "Tên sản phẩm: ${it.name}")
-                    Text(text = "Loại: ${it.category}")
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp)
+            .shadow(elevation = 4.dp, shape = RoundedCornerShape(12.dp)),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
+    ) {
+        Column {
+            Row(modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)) {
+                // Product Image
+                AsyncImage(
+                    model = product?.avatar,
+                    contentDescription = "Product Image",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.LightGray),
+                    contentScale = ContentScale.Crop
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                // Order Information
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "\uD83D\uDCC5 Ngày: ${oder.date}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Text(
+                        text = "\uD83C\uDFE2 Tên đơn hàng: ${oder.name}",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                    product?.let {
+                        Text(
+                            text = "\uD83D\uDCDA Tên sản phẩm: ${it.name}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = "\uD83C\uDFE6 Loại: ${it.category}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+
+
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (oder.status == 0) {
-                        TextButton(onClick = {
-                            val oder = Oder(
-                                oder.id,
-                                oder.name,
-                                oder.phone,
-                                oder.id_pro,
-                                oder.quantity,
-                                oder.all,
-                                oder.address,
-                                2,
-                                oder.date
-                            )
-                            oderViewModel.updateoder(oder.id, oder)
-                        }, modifier = Modifier.weight(1f)) {
-                            Text(text = "Xác nhận")
-                        }
-
-                        TextButton(onClick = {
-                            val oder = Oder(
-                                oder.id,
-                                oder.name,
-                                oder.phone,
-                                oder.id_pro,
-                                oder.quantity,
-                                oder.all,
-                                oder.address,
-                                1,
-                                oder.date
-                            )
-                            oderViewModel.updateoder(oder.id, oder)
-                        }, modifier = Modifier.weight(1f)) {
-                            Text(text = "Hủy xác nhận", fontSize = 10.sp)
-                        }
-                    } else if (oder.status == 1) {
-
-                    } else if(oder.status==2){
-                        TextButton(onClick = {
-                            val oder = Oder(
-                                oder.id,
-                                oder.name,
-                                oder.phone,
-                                oder.id_pro,
-                                oder.quantity,
-                                oder.all,
-                                oder.address,
-                                3,
-                                oder.date
-                            )
-                            oderViewModel.updateoder(oder.id, oder)
-                        }) {
-                            Text(text = "Xác nhận")
-                        }
-                    }else if(oder.status==3){
-                        Row {
-                            TextButton(onClick = {
-                                val oder = Oder(
-                                    oder.id,
-                                    oder.name,
-                                    oder.phone,
-                                    oder.id_pro,
-                                    oder.quantity,
-                                    oder.all,
-                                    oder.address,
-                                    4,
-                                    oder.date
+            }
+                Row(horizontalArrangement = Arrangement.Center) {
+                    // Buttons for Order Actions
+                    when (oder.status) {
+                        0 -> {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                                ActionButton(
+                                    text = "Xác nhận",
+                                    color = Color(0xFF4CAF50),
+                                    onClick = {
+                                        val updatedOder = oder.copy(status = 2)
+                                        oderViewModel.updateoder(oder.id, updatedOder)
+                                    }
                                 )
-                                oderViewModel.updateoder(oder.id, oder)
-                            }) {
-                                Text(text = "Xác nhận")
+                                ActionButton(
+                                    text = "Hủy xác nhận",
+                                    color = Color(0xFFF44336),
+                                    onClick = {
+                                        val updatedOder = oder.copy(status = 1)
+                                        oderViewModel.updateoder(oder.id, updatedOder)
+
+                                        product?.let {
+                                            val updatedProduct = it.copy(
+                                                quantity = it.quantity.toInt() + oder.quantity.toInt()
+                                            )
+                                            proViewModel.updateProduct(oder.id_pro, updatedProduct)
+                                        }
+                                    }
+                                )
                             }
+                        }
 
-                            TextButton(onClick = {
-                                val oder = Oder(
-                                    oder.id,
-                                    oder.name,
-                                    oder.phone,
-                                    oder.id_pro,
-                                    oder.quantity,
-                                    oder.all,
-                                    oder.address,
-                                    5,
-                                    oder.date
+                        2 -> {
+                            ActionButton(
+                                text = "Xác nhận",
+                                color = Color(0xFF03A9F4),
+                                onClick = {
+                                    val updatedOder = oder.copy(status = 3)
+                                    oderViewModel.updateoder(oder.id, updatedOder)
+                                }
+                            )
+                        }
+
+                        3 -> {
+                            Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.Center) {
+                                ActionButton(
+                                    text = "Hoàn tất",
+                                    color = Color(0xFF8BC34A),
+                                    onClick = {
+                                        val updatedOder = oder.copy(status = 4)
+                                        oderViewModel.updateoder(oder.id, updatedOder)
+                                    }
                                 )
-                                oderViewModel.updateoder(oder.id, oder)
-                            }) {
-                                Text(text = "Hủy")
+                                ActionButton(
+                                    text = "Hủy",
+                                    color = Color(0xFFFF5722),
+                                    onClick = {
+                                        val updatedOder = oder.copy(status = 5)
+                                        oderViewModel.updateoder(oder.id, updatedOder)
+                                    }
+                                )
                             }
                         }
                     }
                 }
-            }
+
         }
     }
 }
+
+@Composable
+fun ActionButton(text: String, color: Color, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(containerColor = color),
+        modifier = Modifier
+            .padding(horizontal = 4.dp)
+
+    ) {
+        Text(text = text, color = Color.White, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
 
 
 @Composable
@@ -269,7 +300,7 @@ fun Oder2(viewModel: OderViewModel, proViewModel: ProViewModel) {
             LazyColumn {
                 items(oderlist, key = { it.id }) { item ->
                     if (item.status == 2) {
-                        oderitem(item, viewModel, proViewModel)
+                        OderItem(item, viewModel, proViewModel)
                     }
                 }
             }
@@ -295,7 +326,7 @@ fun Oder3(viewModel: OderViewModel, proViewModel: ProViewModel) {
                 items(oderlist, key = {it.id}){
                     item->
                     if(item.status==3){
-                        oderitem(item,viewModel,proViewModel)
+                        OderItem(item,viewModel,proViewModel)
                     }
                 }
             }
@@ -321,7 +352,7 @@ fun Oder4(viewModel: OderViewModel, proViewModel: ProViewModel) {
                 items(oderlist, key = {it.id}){
                     item->
                     if(item.status==4){
-                        oderitem(item,viewModel,proViewModel)
+                        OderItem(item,viewModel,proViewModel)
                     }
                 }
             }
@@ -346,8 +377,8 @@ fun Oder5(oderViewModel: OderViewModel, proViewModel: ProViewModel) {
             LazyColumn {
                 items(oderlist, key = {it.id}){
                     item->
-                    if(item.status==5){
-                        oderitem(item,oderViewModel,proViewModel)
+                    if(item.status==1){
+                        OderItem(item,oderViewModel,proViewModel)
                     }
                 }
             }
@@ -372,8 +403,8 @@ fun Oder6(viewModel: OderViewModel, proViewModel: ProViewModel) {
             Text(text = "Đơn hàng giao thất bại", textAlign = TextAlign.Center, fontSize = 30.sp)
             LazyColumn {
                 items(oderlist, key = { it.id }) { item ->
-                    if (item.status == 1) {
-                        oderitem(item, oderViewModel = viewModel, proViewModel = proViewModel)
+                    if (item.status == 5) {
+                        OderItem(item, oderViewModel = viewModel, proViewModel = proViewModel)
                     }
                 }
             }

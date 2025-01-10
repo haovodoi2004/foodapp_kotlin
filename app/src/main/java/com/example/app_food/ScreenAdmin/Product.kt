@@ -1,18 +1,24 @@
 package com.example.app_food.ScreenAdmin
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,10 +31,15 @@ import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardDefaults.elevatedCardElevation
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -85,12 +96,37 @@ fun Product(
         status = 0
     )
     // Fetch dữ liệu khi cần
-    LaunchedEffect(listProduct) {
-        if (listProduct.isEmpty()) productViewModel.fetchProduct()
-        if (listProtype.isEmpty()) protypeViewModel.fetchProtype()
+//    LaunchedEffect(listProduct) {
+//        if (listProduct.isEmpty()) productViewModel.fetchProduct()
+//        if (listProtype.isEmpty()) protypeViewModel.fetchProtype()
+//    }
+//    LaunchedEffect(listProduct) {
+//        filteredProducts = if (selectedCategory.isEmpty()) {
+//            productViewModel.fetchProduct()
+//            listProduct
+//        } else {
+//            listProduct.filter { it.category == selectedCategory }
+//        }
+//    }
+//
+//    // Lọc danh sách sản phẩm theo danh mục
+//    LaunchedEffect(selectedCategory, listProduct) {
+//        filteredProducts = if (selectedCategory.isEmpty()) {
+//            listProduct
+//        } else {
+//            listProduct.filter { it.category == selectedCategory }
+//        }
+//    }
+
+    LaunchedEffect(Unit) {
+        if (listProduct.isEmpty()) {
+            productViewModel.fetchProduct()
+        }
+        if (listProtype.isEmpty()) {
+            protypeViewModel.fetchProtype()
+        }
     }
 
-    // Lọc danh sách sản phẩm theo danh mục
     LaunchedEffect(selectedCategory, listProduct) {
         filteredProducts = if (selectedCategory.isEmpty()) {
             listProduct
@@ -98,6 +134,7 @@ fun Product(
             listProduct.filter { it.category == selectedCategory }
         }
     }
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -112,17 +149,21 @@ fun Product(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f) // Để LazyColumn tự điều chỉnh chiều cao
-                    .padding(horizontal = 16.dp)
+//                    .weight(1f) // Để LazyColumn tự điều chỉnh chiều cao
+                    .padding(start = 16.dp, end = 16.dp)
+                    .background(Color.White),
+                verticalArrangement = Arrangement.spacedBy(16.dp) // Khoảng cách giữa các item
+
             ) {
                 items(filteredProducts, key = { it.id!! }) { product ->
                     val dismissState = rememberSwipeToDismissBoxState(
                         confirmValueChange = {
+                            Log.d("jfaoijoejg","$it")
                             if (it == SwipeToDismissBoxValue.EndToStart) {
                                 showDialog = true
                                 selectedId = product.id!!
-                                produc=product
-                                false
+                                produc = product
+                                true
                             } else {
                                 false
                             }
@@ -136,30 +177,38 @@ fun Product(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .background(Color.Red)
-                                    .padding(16.dp),
+                                    .padding(horizontal = 20.dp),
                                 contentAlignment = Alignment.CenterEnd
                             ) {
                                 Text(text = "Delete", color = Color.White, fontSize = 16.sp)
                             }
+                        })
+                        {
+                        if(product.status.toInt()==0) {
+                            // Nội dung chính của item
+                            productItem(product = product, onButton = onButtonClick, listProtype)
                         }
-                    ) {
-                        if(product.status.toInt()==0){
-                            productItem(product = product, onButton = onButtonClick,listProtype)
+
                         }
-                    }
+
                 }
             }
+
         }
 
         // Nút thêm sản phẩm
         IconButton(
-            onClick = { show=true },
+            onClick = { show = true },
             modifier = Modifier
-                .align(Alignment.BottomEnd)
+                .align(alignment = Alignment.BottomEnd)
                 .padding(16.dp)
                 .background(Color(0xFF673AB7), shape = CircleShape)
         ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Add Product", tint = Color.White)
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add Product",
+                tint = Color.White
+            )
         }
 
         // Dialog xác nhận xóa
@@ -168,17 +217,17 @@ fun Product(
                 onDismiss = { showDialog = false },
                 onConfirm = {
 
-                        val pro = Product(
-                            selectedId,
-                            produc.name,
-                            produc.price,
-                            produc.avatar,
-                            produc.infor,
-                            produc.category,
-                            produc.quantity,
-                            1
-                        )
-                        productViewModel.updateProduct(selectedId, pro)
+                    val pro = Product(
+                        selectedId,
+                        produc.name,
+                        produc.price,
+                        produc.avatar,
+                        produc.infor,
+                        produc.category,
+                        produc.quantity,
+                        1
+                    )
+                    productViewModel.updateProduct(selectedId, pro)
 
 
                     showDialog = false
@@ -186,8 +235,12 @@ fun Product(
             )
         }
 
-        if(show){
-            productAdd(onDismiss = { show=false},listProtype=listProtype, productViewModel = ProViewModel())
+        if (show) {
+            productAdd(
+                onDismiss = { show = false },
+                listProtype = listProtype,
+                productViewModel = ProViewModel()
+            )
         }
     }
 }
@@ -235,8 +288,8 @@ fun productAdd(onDismiss : ()-> Unit,listProtype : List<Protype>,productViewMode
         confirmButton = {
             Button(onClick = {
                 val pro = Product("",name,price,avatar,infor,selectedCategory,quantity,0)
-                onDismiss()
                 productViewModel.addProduct(pro)
+                onDismiss()
             }) {
                 Text(text = "Kê")
             }
@@ -268,25 +321,37 @@ fun productDelete(onDismiss : ()-> Unit,onConfirm : ()-> Unit){
 
 @Composable
 fun productItem(product: Product,onButton : (String) -> Unit,list : List<Protype>){
-    Card(modifier = Modifier
-        .fillMaxWidth()
-        .padding(8.dp)
-        .background(Color.White), onClick = {
-        onButton(product.id)
-    }) {
-        Column() {
-            // Bạn có thể thêm thông tin khác của sản phẩm tại đây
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .clickable { onButton(product.id!!) },
+        elevation = CardDefaults.elevatedCardElevation(8.dp),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Row(modifier = Modifier.padding(16.dp)) {
             AsyncImage(
-                model = product.avatar,  // Đường dẫn URL của ảnh
+                model = product.avatar,
                 contentDescription = product.name,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = LocalConfiguration.current.screenHeightDp.dp * 0.15f), // Giới hạn chiều cao tối đa,  // Đảm bảo ảnh vuông, chiếm hết chiều rộng
-                contentScale = ContentScale.Crop  // Để ảnh cắt vừa khung
-
+                    .size(80.dp)
+                    .background(Color.LightGray, shape = RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
             )
-            Text(text = product.name ?: "Unknown", fontSize = 20.sp)
-            Text(text = "$ ${product.price.toString()}")
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.align(Alignment.CenterVertically)) {
+                Text(
+                    text = product.name ?: "Unknown",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "$${product.price}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+            }
         }
     }
 }
@@ -301,104 +366,34 @@ fun CategoryItems(title: String,onSelect : (String) -> Unit){
 }
 
 @Composable
-fun dropMenu(listProtype : List<Protype>,selectedCategory: String,
-             onCategorySelected: (String) -> Unit){
-    var category by remember { mutableStateOf("") }
-    val heightTextflied by remember { mutableStateOf(55.dp) }
-    var textFliedSize by remember { mutableStateOf(androidx.compose.ui.geometry.Size.Zero) }
+fun dropMenu(listProtype: List<Protype>, selectedCategory: String, onCategorySelected: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    val interactionSource = remember { MutableInteractionSource() }
-    Box() {
-        Column(modifier = Modifier
-            .padding(30.dp)
-            .fillMaxWidth()
-            .clickable(interactionSource = interactionSource,
-                indication = null,
-                onClick = {
-                    expanded = false
-                }
-            )) {
-            Text(
-                modifier = Modifier.padding(start = 3.dp, bottom = 2.dp),
-                fontSize = 16.sp,
-                color = Color.Black,
-                fontWeight = FontWeight.Medium,
-                text = "Category"
-            )
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    TextField(modifier = Modifier
-                        .fillMaxWidth()
-                        .height(heightTextflied)
-                        .border(
-                            width = 1.8.dp,
-                            color = Color.Black,
-                            shape = RoundedCornerShape(15.dp)
-                        )
-                        .onGloballyPositioned { coordinates ->
-                            textFliedSize = coordinates.size.toSize()
+    var selectedText by remember { mutableStateOf(selectedCategory) }
 
-                        },
-                        value = selectedCategory, // Hiển thị giá trị đã chọn
-                        onValueChange = {
-                            onCategorySelected(it) // Truyền giá trị đã chọn
-                            expanded = true
-                        },
-                        colors = TextFieldDefaults.colors(
-                            errorLeadingIconColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedLabelColor = Color.Transparent,
-                            cursorColor = Color.Black
-                        ),
-                        textStyle = TextStyle(
-                            color = Color.Black,
-                            fontSize = 16.sp
-                        ),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Done
-                        ),
-                        singleLine = true,
-                        trailingIcon = {
-                            IconButton(onClick = { expanded = !expanded }) {
-                                Icon(
-                                    imageVector = Icons.Rounded.ArrowDropDown,
-                                    contentDescription = ""
-                                )
-                            }
-                        }
-                    )
+    Box(modifier = Modifier.padding(16.dp)) {
+        OutlinedTextField(
+            value = selectedText,
+            onValueChange = { selectedText = it },
+            label = { Text(text = "Danh mục") },
+            trailingIcon = {
+                IconButton(onClick = { expanded = !expanded }) {
+                    Icon(imageVector = Icons.Rounded.ArrowDropDown, contentDescription = null)
                 }
-                AnimatedVisibility(visible = expanded) {
-                    Card(
-                        modifier = Modifier
-                            .padding(horizontal = 5.dp)
-                            .width(textFliedSize.width.dp),
-                        elevation = elevatedCardElevation(10.dp)
-                    ) {
-                        LazyColumn(modifier = Modifier.heightIn(max = 150.dp),) {
-                            if (category.isNotEmpty()) {
-                                items(listProtype.filter {
-                                    it.name.lowercase() // Thay `name` bằng thuộc tính đúng của đối tượng
-                                        .contains(category.lowercase()) || it.name.lowercase()
-                                        .contains("other")
-                                }.sortedBy { it.name }) {
-                                    CategoryItems(it.name) { title ->
-                                        onCategorySelected(title) // Truyền giá trị khi chọn
-                                        expanded = false
-                                    }
-                                }
-                            } else {
-                                items(listProtype.sortedBy { it.name }) { // Sắp xếp theo thuộc tính `name`
-                                    CategoryItems(title = it.name) { title ->
-                                        onCategorySelected(title) // Truyền giá trị khi chọn
-                                        expanded = false
-                                    }
-                                }
-                            }
-                        }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            readOnly = true
+        )
+
+        DropdownMenu (expanded = expanded, onDismissRequest = { expanded = false }) {
+            listProtype.forEach { protype ->
+                DropdownMenuItem(
+                    text = { Text(text = protype.name) },
+                    onClick = {
+                        selectedText = protype.name
+                        onCategorySelected(protype.name)
+                        expanded = false
                     }
-                }
+                )
             }
         }
     }

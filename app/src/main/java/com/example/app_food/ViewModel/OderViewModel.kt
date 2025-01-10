@@ -46,6 +46,7 @@ class OderViewModel() : ViewModel(){
         viewModelScope.launch {
             try{
                 val repone=RetrofitInstance.api.addoder(oder)
+                fetchoder()
                 dataoder.value=repone
             }catch (e :Exception){
                 e.printStackTrace()

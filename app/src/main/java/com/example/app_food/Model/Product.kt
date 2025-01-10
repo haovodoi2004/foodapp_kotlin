@@ -2,7 +2,7 @@ package com.example.app_food.Model
 
 import com.google.gson.annotations.SerializedName
 
-class Product (
+data class Product (
     @SerializedName("_id") val id: String,
 //    @SerializedName("_id") val id: String? = null, // Giá trị mặc định là null
     val name: String,

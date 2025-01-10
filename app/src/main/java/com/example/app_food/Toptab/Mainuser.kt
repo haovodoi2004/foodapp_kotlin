@@ -105,7 +105,7 @@ fun User1(userViewModel: UserViewModel){
                 .background(Color.White)
         ) {
             items(listuse, key = { it.id!! }) { item ->
-                userr=User(item.id,item.email,item.password,item.name,item.address,item.sex,2)
+
                 val dismissState = rememberSwipeToDismissBoxState(
                     confirmValueChange = {
 
@@ -113,6 +113,7 @@ fun User1(userViewModel: UserViewModel){
                             item.id?.let { id ->
                                 show = true
                                 selectId = id
+                                userr=item
                             }
                             false
                         } else {
@@ -152,7 +153,8 @@ fun User1(userViewModel: UserViewModel){
         if (show) {
             userDelete(ondismiss = { show = false },
                 onConfirm = {
-                    userViewModel.deleteUser(selectId)
+                    val user = User(selectId,userr.email,userr.password,userr.name,userr.address,userr.sex,2)
+                    userViewModel.updateUser(selectId,user)
                     show = false
                 })
         }
@@ -192,7 +194,7 @@ fun User3(userViewModel: UserViewModel){
     }
     Box(modifier = Modifier.fillMaxSize()){
         Column() {
-            Text(text = "Danh sách tài khoản bị khóa")
+            Text(text = "Danh sách tài khoản bị xóa")
             LazyColumn {
                 items(userlist, key = {it.id!!}){
                     item->

@@ -57,6 +57,11 @@ interface Apiserver {
     @GET("oder/getlistoder")
     suspend fun getlistoder() : List<Oder>
 
+    @GET("us/getbyemailuser/{email}")
+    suspend fun getuserbyemail(@Path("email") email : String) : Response<User>
+
+    @GET("product/getbynameproduct/{name}")
+    suspend fun getproductbyname(@Path("name") name : String) : List<Product>
 
     @POST("oder/addoder")
     suspend fun addoder(@Body oder:Oder) : Response<Oder>
@@ -81,9 +86,9 @@ interface Apiserver {
 
 
 
-    @PUT("shopcart/editshopcart/{idpro}")
+    @PUT("shopcart/editshopcart/{id}")
     suspend fun updateData(
-        @Path("idpro") idpro: String,
+        @Path("id") id: String,
         @Body shopcart: Shopcart
     ): Response<Shopcart>
 

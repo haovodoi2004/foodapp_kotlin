@@ -62,6 +62,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.app_food.Model.New
@@ -73,18 +74,18 @@ import com.example.app_food.ViewModel.ProViewModel
 import com.example.app_food.ViewModel.ProtypeViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import retrofit2.Response
+
 
 @Composable
-fun Home(navController: NavController,proViewModel: ProViewModel,protypeViewModel: ProtypeViewModel) {
+fun Home(navController: NavController,proViewModel: ProViewModel,protypeViewModel: ProtypeViewModel,email : String,modifier: Modifier) {
     LazyColumn(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        item { Search() }
+        item { Search(proViewModel,navController,email) }
         item { AutoImage() }
-        item { ProtypeList(navController,protypeViewModel,proViewModel) }
+        item { ProtypeList(navController,protypeViewModel,proViewModel,email) }
         item { Even() }
     }
 }
@@ -105,7 +106,8 @@ fun NewItem(new: New?) {
                 contentDescription = new.title ?: "No title",  // Kiểm tra null cho title
                 modifier = Modifier
                     .widthIn(max = LocalConfiguration.current.screenWidthDp.dp * 0.2f)
-                    .heightIn(max = LocalConfiguration.current.screenHeightDp.dp * 0.08f).clip(
+                    .heightIn(max = LocalConfiguration.current.screenHeightDp.dp * 0.08f)
+                    .clip(
                         RoundedCornerShape(10.dp)
                     ),
                 contentScale = ContentScale.Crop,
@@ -172,7 +174,7 @@ fun Even(viewModel: NewViewModel = NewViewModel()) {
 }
 
 @Composable
-fun ProtypeList(navController: NavController, viewModel: ProtypeViewModel, view:ProViewModel) {
+fun ProtypeList(navController: NavController, viewModel: ProtypeViewModel, view:ProViewModel,email: String) {
     // Khởi chạy lấy danh sách các loại sản phẩm
     val protypeItems by viewModel.protypeItems.observeAsState(initial = emptyList())
 
@@ -196,19 +198,19 @@ fun ProtypeList(navController: NavController, viewModel: ProtypeViewModel, view:
         }
     }
 
-    ProductList(navController,view)
+    ProductList(navController,view,email)
 }
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun ProductList(navController: NavController,view: ProViewModel) {
+fun ProductList(navController: NavController,view: ProViewModel,email: String) {
     // Theo dõi dữ liệu từ view.proo và hiển thị danh sách sản phẩm
     val proList by view.Product.observeAsState(initial =emptyList())
         LazyRow(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(proList) { product ->
-                ProductItem(product,navController)
+                ProductItem(product,navController,email)
             }
         }
 }
@@ -230,7 +232,7 @@ fun ProtypeItem(protypeItem: Protype, onClick: () -> Unit) {
 }
 
 @Composable
-fun ProductItem(product: Product,navController: NavController) {
+fun ProductItem(product: Product,navController: NavController,email: String) {
     val context = LocalContext.current
     val screenWith = LocalConfiguration.current.screenWidthDp.dp
 
@@ -242,7 +244,7 @@ fun ProductItem(product: Product,navController: NavController) {
         elevation = CardDefaults.elevatedCardElevation(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         onClick = {
-            navController.navigate("productDetail/${product.id}")
+            navController.navigate("productDetail/${product.id}/${email}")
 
         }
     ) {
@@ -381,115 +383,66 @@ fun IndicatorDots(isSelectted: Boolean, modifier: Modifier) {
 
 }
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
-fun Search() {
-    var text by remember {
-        mutableStateOf("")
-    }
-    var active by remember {
-        mutableStateOf(false)
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        // Nội dung của SearchBar
-        if (!active) {
-            // Khi không active, hiển thị SearchBar thông thường
-            SearchBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                query = text,
-                onQueryChange = {
-                    text = it
-                },
-                onSearch = {
-                    active = false
-                },
-                active = active,
-                onActiveChange = {
-                    active = it
-                },
-                placeholder = {
-                    Text(text = "Search")
-                },
-                leadingIcon = {
-                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
-                },
-                trailingIcon = {
-                    if (active) {
-                        Icon(
-                            modifier = Modifier.clickable {
-                                if (text.isNotEmpty()) {
-                                    text = ""
-                                } else {
-                                    active = false
-                                }
-                            },
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "close"
-                        )
-                    }
+fun Search(viewModel: ProViewModel,navController: NavController,email: String){
+    var text by remember { mutableStateOf("") }
+    var active by remember { mutableStateOf(false) }
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp // Lấy chiều cao màn hình
+    val searchResults by viewModel.Product.observeAsState(emptyList()) // Theo dõi danh sách sản phẩm từ ViewModel
+        SearchBar(modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(max = screenHeight * 1f),query = text,
+            onQueryChange = {
+                text = it
+                if (text.isNotEmpty()) {
+                    viewModel.getprobyname(text) // Gọi API khi có thay đổi
                 }
-            ) {
-                // Nội dung xuất hiện khi active
-            }
-        } else {
-            // Khi active, SearchBar chiếm toàn màn hình
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White)
-                    .padding(16.dp)
-            ) {
-                SearchBar(
-                    modifier = Modifier.fillMaxWidth(),
-                    query = text,
-                    onQueryChange = {
-                        text = it
-                    },
-                    onSearch = {
-                        active = false
-                    },
-                    active = active,
-                    onActiveChange = {
-                        active = it
-                    },
-                    placeholder = {
-                        Text(text = "Search")
-                    },
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
-                    },
-                    trailingIcon = {
-                        Icon(
-                            modifier = Modifier.clickable {
-                                if (text.isNotEmpty()) {
-                                    text = ""
+            },
+            onSearch ={
+                active=false
+            },
+            active =active,
+            onActiveChange ={
+                active=it
+            },
+            placeholder = {
+                Text(text="Search")
+            },
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.Search, contentDescription = "")
+            },
+            trailingIcon = {
+                if(active){
+                    Icon(
+                        modifier = Modifier.clickable {
+                            if (text.isNotEmpty()) {
+                                   text = ""
                                 } else {
                                     active = false
                                 }
-                            },
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "close"
-                        )
-                    }
+                        },
+                        imageVector = Icons.Default.Close, contentDescription = ""
+                    )
+                }
+            }) {   // Danh sách kết quả tìm kiếm
+            if (searchResults.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
                 ) {
-                    // Nội dung chi tiết khi active
-                    LazyColumn {
-                        items(10) { index ->
-                            Text(
-                                text = "Result $index",
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp)
-                            )
-                        }
+                    items(searchResults) { product ->
+                        ProductItem(product, navController, email)
                     }
                 }
+            } else if (text.isNotEmpty()) {
+                Text(
+                    text = "No results found.",
+                    color = Color.Gray,
+                    modifier = Modifier.padding(16.dp)
+                )
             }
         }
-    }
 }
+

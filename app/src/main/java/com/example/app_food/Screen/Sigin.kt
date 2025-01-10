@@ -1,5 +1,6 @@
 package com.example.app_food.Screen
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -47,18 +48,42 @@ fun Sigin(onSignupClick: () -> Unit,navController: NavController,userViewModel: 
     val context= LocalContext.current
     val loginStatus by userViewModel.loginStatus.observeAsState()
     val loginErrorMessage by userViewModel.loginErrorMessage.observeAsState()
+    val user by userViewModel.userr.observeAsState()
+
     LaunchedEffect (loginStatus) {
         loginStatus?.let { isSuccess ->
             if (isSuccess) {
-                Toast.makeText(context, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
-                navController.navigate("main"){
-                    popUpTo("login") { inclusive = true }
+                if (isSuccess) {
+                    user?.let {
+                        Log.d("Debugggg","${it.status} và ${it.email}")
+                        when (it.status.toInt()) {
+                            0 -> { // Đăng nhập thành công với quyền người dùng bình thường
+                                Toast.makeText(context, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
+                                navController.navigate("main/$email") {
+                                    popUpTo("signin") { inclusive = true }
+                                }
+                            }
+                            3 -> { // Điều hướng đến màn hình admin
+                                Toast.makeText(context, "Đăng nhập với quyền Admin!", Toast.LENGTH_SHORT).show()
+                                navController.navigate("mainadmin") {
+                                    popUpTo("signin") { inclusive = true }
+                                }
+                            }
+                            else -> {
+                                Toast.makeText(
+                                    context,
+                                    "Tài khoản không được phép đăng nhập!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                } else {
+                    val errorMessage = loginErrorMessage ?: "Đăng nhập thất bại. Vui lòng thử lại."
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                 }
-            } else {
-                val errorMessage = loginErrorMessage ?: "Đăng nhập thất bại. Vui lòng thử lại."
-                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                userViewModel.resetLoginStatus()
             }
-            userViewModel.resetLoginStatus()
         }
     }
 
@@ -116,14 +141,24 @@ fun Sigin(onSignupClick: () -> Unit,navController: NavController,userViewModel: 
 
         Button(
             onClick = {
-                val user = User("",email, password, "","",0,0)
-                userViewModel.login(user)
+                userViewModel.getUserByEmail(email) { userToCheck ->
+                    if (userToCheck == null) {
+                        Toast.makeText(context, "Email không tồn tại!", Toast.LENGTH_SHORT).show()
+                    } else if (userToCheck.status == 1 || userToCheck.status == 2) {
+                        Toast.makeText(context, "Tài khoản của bạn bị khóa hoặc không thể đăng nhập!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        // Chỉ đăng nhập nếu status == 0
+                        val user = User(userToCheck.id, email, password, userToCheck.name, userToCheck.address, userToCheck.sex, userToCheck.status)
+                        userViewModel.login(user)
+                    }
+                }
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA500))
         ) {
-            Text(text = "Sigup", color = Color.White)
+            Text(text = "Sign In", color = Color.White)
         }
+
 
         Spacer(modifier = Modifier.height(16.dp))
 

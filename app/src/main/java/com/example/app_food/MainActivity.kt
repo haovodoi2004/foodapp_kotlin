@@ -29,10 +29,13 @@ import com.example.app_food.Screen.Home
 import com.example.app_food.Screen.Sigin
 import com.example.app_food.Screen.Sigup
 import com.example.app_food.Bottombar.MainScreen
+import com.example.app_food.Bottombar.userDetail
 import com.example.app_food.BottombarAdmin.LearnNavDrawer
 import com.example.app_food.Screen.ProductDetail
+import com.example.app_food.ViewModel.OderViewModel
 import com.example.app_food.ViewModel.ProViewModel
 import com.example.app_food.ViewModel.ProtypeViewModel
+import com.example.app_food.ViewModel.ShopcartViewModel
 import com.example.app_food.ViewModel.UserViewModel
 
 class MainActivity : ComponentActivity() {
@@ -46,10 +49,10 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("NewApi")
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun AppNavigation(proViewModel: ProViewModel=ProViewModel(),protypeViewModel: ProtypeViewModel=ProtypeViewModel()){
+    fun AppNavigation(proViewModel: ProViewModel=ProViewModel(),protypeViewModel: ProtypeViewModel=ProtypeViewModel(),oderViewModel: OderViewModel=OderViewModel(),userViewModel: UserViewModel=UserViewModel(),shopcartViewModel: ShopcartViewModel=ShopcartViewModel()){
         val navController= rememberNavController()
         val context= LocalContext.current
-        NavHost(navController=navController, startDestination = "mainadmin") {
+        NavHost(navController=navController, startDestination = "signin") {
             composable("signin"){
                 Sigin(onSignupClick={
                     navController.navigate("signup")
@@ -58,23 +61,58 @@ class MainActivity : ComponentActivity() {
             composable("signup"){
                Sigup(navController)
             }
-            composable("home"){
-                Home(navController,proViewModel,protypeViewModel)
-            }
-            composable("mainadmin"){
-                LearnNavDrawer()
+            composable("home/{email}",
+                arguments = listOf(navArgument("email") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val email = backStackEntry.arguments?.getString("email")
+                Home(navController, proViewModel, protypeViewModel, email!!, modifier = Modifier)
             }
 
-            composable("main"){
-                MainScreen(navController,proViewModel,protypeViewModel)
+            composable("mainadmin"){
+                LearnNavDrawer(onClick = {
+                    navController.navigate("signin")
+                })
+            }
+
+            composable("main/{email}",
+                arguments = listOf(navArgument("email") { type = NavType.StringType })){
+                    backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("email")
+                if (userId != null) {
+                    MainScreen(navController,proViewModel,protypeViewModel,oderViewModel,userViewModel,userId,shopcartViewModel)
+                } else {
+                    Toast.makeText(context,"product id lỗi cmnr",Toast.LENGTH_SHORT).show()
+                    // Xử lý trường hợp null (ví dụ hiển thị thông báo lỗi hoặc điều hướng về màn hình khác)
+                }
+
             }
             composable(
-                route = "productDetail/{productId}",
-                arguments = listOf(navArgument("productId") { type = NavType.StringType })
+                route = "userDetail/{email}",
+                arguments = listOf(
+                    navArgument("email") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+
+                val email = backStackEntry.arguments?.getString("email")
+                if ( email != null) {
+                    userDetail(email,navController,userViewModel)
+                } else {
+                    Toast.makeText(context,"product id lỗi cmnr",Toast.LENGTH_SHORT).show()
+                    // Xử lý trường hợp null (ví dụ hiển thị thông báo lỗi hoặc điều hướng về màn hình khác)
+                }
+
+            }
+            composable(
+                route = "productDetail/{productId}/{email}",
+                arguments = listOf(
+                    navArgument("productId") { type = NavType.StringType },
+                    navArgument("email") { type = NavType.StringType }
+                )
             ) { backStackEntry ->
                 val productId = backStackEntry.arguments?.getString("productId")
-                if (productId != null) {
-                    ProductDetail(navController,productId)
+                val email = backStackEntry.arguments?.getString("email")
+                if (productId != null&& email != null) {
+                    ProductDetail(navController,productId,email,proViewModel,shopcartViewModel,oderViewModel)
                 } else {
                     Toast.makeText(context,"product id lỗi cmnr",Toast.LENGTH_SHORT).show()
                     // Xử lý trường hợp null (ví dụ hiển thị thông báo lỗi hoặc điều hướng về màn hình khác)

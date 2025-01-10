@@ -9,19 +9,36 @@ import androidx.lifecycle.viewModelScope
 import com.example.app_food.Model.Product
 import com.example.app_food.Retrofit.RetrofitInstance
 import kotlinx.coroutines.launch
-import retrofit2.Response
-import java.lang.Thread.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+
 
 class ProViewModel:ViewModel() {
 
     private val _product = MutableLiveData<Product>()
     val product: LiveData<Product> = _product
     val Product= MutableLiveData<List<Product>>()
+    val Product1= MutableLiveData<List<Product>>()
+    val pro=MutableLiveData<Product>()
 
     private val _products = mutableStateOf<Map<String, Product>>(emptyMap())
     val products = _products
+
+    fun clearSearchResults() {
+        Product1.postValue(emptyList())
+    }
+
+    fun getprobyname(name : String){
+        viewModelScope.launch {
+            val respone = RetrofitInstance.api.getproductbyname(name)
+            try {
+                if(respone.isNotEmpty()){
+                    Product1.postValue(respone)
+                }
+            }catch (e : Exception){
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun addProduct(pro: Product){
         viewModelScope.launch {
             try {
@@ -29,7 +46,7 @@ class ProViewModel:ViewModel() {
                 if(respone.isSuccessful){
                     val updatedList = RetrofitInstance.api.getproduct()
                     Product.postValue(updatedList)
-                    fetchProduct()
+
                 }
             }catch (e:Exception){
                 e.printStackTrace()
@@ -59,7 +76,7 @@ class ProViewModel:ViewModel() {
                 if (response.isNotEmpty()) {
                     Product.postValue(response)
                 } else {
-                    Product.postValue(emptyList())
+                    Product.postValue(response)
                 }
             } catch (e: Exception) {
                 Log.e("Error", e.localizedMessage ?: "Unknown Error", e)
@@ -73,6 +90,7 @@ class ProViewModel:ViewModel() {
             try {
                 val respone=RetrofitInstance.api.updatePro(idpro,pro)
                 if(respone.isSuccessful){
+                    gettProById(idpro)
                     fetchProduct()
                 }else{
                     Log.e("API Error", "Error: ${respone.errorBody()?.string()}")

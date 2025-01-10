@@ -1,7 +1,7 @@
 package com.example.app_food.BottombarAdmin
 
 sealed class Screens(val screen : String) {
-    data object Home: Screens("home")
+    data object Logout: Screens("logout")
     data object ProductType : Screens("ProductType")
     data object Product : Screens("Product")
     data object Oder: Screens ("Oder")

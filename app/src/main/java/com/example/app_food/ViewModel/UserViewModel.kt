@@ -20,6 +20,37 @@ class UserViewModel : ViewModel(){
     val loginStatus: MutableLiveData<Boolean> = MutableLiveData()
     val loginErrorMessage: MutableLiveData<String> = MutableLiveData()
     val user = MutableLiveData<List<User>>()
+    val userr=MutableLiveData<User?>()
+
+    fun getuser(email: String){
+        viewModelScope.launch {
+            val respone = RetrofitInstance.api.getuserbyemail(email)
+            try {
+                if(respone.isSuccessful){
+                    userr.postValue(respone.body())
+                }
+            }catch (e:Exception){
+                e.printStackTrace()
+            }
+        }
+    }
+
+    // Hàm lấy thông tin người dùng từ API dựa vào email
+    fun getUserByEmail(email: String, onResult: (User?) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.api.getuserbyemail(email)
+                if (response.isSuccessful && response.body() != null) {
+                    onResult(response.body()) // Trả về User nếu tìm thấy
+                } else {
+                    onResult(null) // Không tìm thấy
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                onResult(null) // Xử lý lỗi
+            }
+        }
+    }
 
     fun updateUser(id : String , user: User) {
         viewModelScope.launch {
@@ -27,6 +58,8 @@ class UserViewModel : ViewModel(){
             try {
                 if (respone.isSuccessful) {
                     fetch()
+                    val updatedUser = RetrofitInstance.api.getuserbyemail(id)
+                    userr.postValue(updatedUser.body())
                 } else {
                     Log.e("API update user ", " Error ${respone.errorBody()?.string()}")
                 }
@@ -73,11 +106,15 @@ class UserViewModel : ViewModel(){
     // Hàm đăng nhập
     fun login(user: User) {
         viewModelScope.launch {
+            Log.d("API Response", "Response: ${user}")
             val response = RetrofitInstance.api.login(user)
             if (response.isSuccessful && response.body() != null) {
-                loginStatus.value = true  // Đăng nhập thành công
-
-            } else {
+                Log.d("API Response", "Response: ${response.body()}")
+                val loggedInUser = user
+                userr.value = loggedInUser
+                loginStatus.value = true
+            }
+            else {
                 loginStatus.value = false // Đăng nhập thất bại
                 loginErrorMessage.value = response.message() // Lưu thông báo lỗi nếu có
             }
@@ -87,4 +124,5 @@ class UserViewModel : ViewModel(){
         loginStatus.value = null
         loginErrorMessage.value = null
     }
+
 }

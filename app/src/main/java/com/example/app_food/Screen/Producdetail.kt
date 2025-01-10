@@ -10,7 +10,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +20,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -58,6 +62,7 @@ import com.example.app_food.ViewModel.ProViewModel
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.app_food.Model.Oder
@@ -71,27 +76,39 @@ import java.util.Date
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
+
 fun ProductDetail(
     navController: NavController,
     produc: String,
-    viewModel: ProViewModel = ProViewModel()
+    email: String,
+    viewModel: ProViewModel,
+    viewModel1: ShopcartViewModel,
+    oderViewModel: OderViewModel
 ) {
     val product by viewModel.product.observeAsState()
     val context = LocalContext.current
     val show = remember { mutableStateOf(false) }
-    var bottomshettshow by remember { mutableStateOf(false) }
+    var bottomSheetShow by remember { mutableStateOf(false) }
+    val listShopCart by viewModel1.ShopcartItems.observeAsState(initial = emptyList())
+
+    LaunchedEffect(listShopCart) {
+        if (listShopCart.isEmpty()) {
+            viewModel1.fetchShopcart()
+        }
+    }
 
     LaunchedEffect(produc) {
         viewModel.getProById(produc)
         Toast.makeText(context, "id sản phẩm là ${produc}", Toast.LENGTH_SHORT).show()
     }
+
     product?.let { prod ->
         Box(modifier = Modifier.fillMaxSize()) {
-            // Box đầu tiên (chiếm 50% chiều cao)
+            // Box đầu tiên (Hình ảnh sản phẩm)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.4f) // Chiếm 50% chiều cao
+                    .fillMaxHeight(0.4f)
                     .background(Color.Black)
             ) {
                 AsyncImage(
@@ -101,103 +118,131 @@ fun ProductDetail(
                     contentScale = ContentScale.Crop
                 )
 
+                // Nút quay lại
                 IconButton(
                     onClick = { navController.navigateUp() },
                     modifier = Modifier
-                        .align(Alignment.TopStart) // Căn nút ở góc trên bên trái
-                        .padding(16.dp) // Khoảng cách từ cạnh
-                        .background(
-                            color = Color.Black.copy(alpha = 0.2f), // Nền mờ
-                            shape = CircleShape
-                        )
+                        .align(Alignment.TopStart)
+                        .padding(16.dp)
+                        .background(color = Color.Black.copy(alpha = 0.3f), shape = CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
                         tint = Color.White,
                         modifier = Modifier.size(40.dp)
-
                     )
                 }
+
+                // Nút giỏ hàng
                 IconButton(
-                    onClick = {
-                        bottomshettshow = true // Cập nhật trạng thái mở
-                    },
+                    onClick = { bottomSheetShow = true },
                     modifier = Modifier
-                        .padding(16.dp)
                         .align(Alignment.TopEnd)
-                        .background(color = Color.Black.copy(alpha = 0.2f), shape = CircleShape)
+                        .padding(16.dp)
+                        .background(color = Color.Black.copy(alpha = 0.3f), shape = CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.ShoppingCart,
-                        contentDescription = "",
+                        contentDescription = "Cart",
                         tint = Color.White,
                         modifier = Modifier.size(30.dp)
                     )
                 }
             }
-            if (bottomshettshow) {
-                shopcart(prod.avatar, prod.name, prod.quantity, produc, prod.price) {
-                    bottomshettshow = false
+
+            // Bottom Sheet for Shopping Cart
+            if (bottomSheetShow) {
+                shopcart(
+                    prod.avatar,
+                    prod.name,
+                    prod.quantity,
+                    produc,
+                    prod.price,
+                    email,
+                    listShopCart,
+                    viewModel1
+                ) {
+                    bottomSheetShow = false
                 }
             }
 
-            // Box thứ hai (chiếm 60% chiều cao, đè lên Box đầu tiên)
-
+            // Box thứ hai (Thông tin sản phẩm)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.65f) // Chiếm 60% chiều cao
-                    .align(Alignment.BottomCenter) // Đặt ở phía dưới màn hình
-                    .zIndex(0.5f) // Đặt trên Box đầu tiên
+                    .fillMaxHeight(0.65f)
+                    .align(Alignment.BottomCenter)
+                    .zIndex(0.5f)
                     .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                     .background(Color.White)
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 16.dp, end = 16.dp, start = 16.dp),
+                    verticalArrangement = Arrangement.SpaceBetween // Đẩy nút xuống cuối
                 ) {
-                    Text(
-                        text = prod.name,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Price: $${prod.price}",
-                        fontSize = 18.sp,
-                        color = Color.Green
-                    )
-                    Text(
-                        text = prod.infor,
-                        fontSize = 16.sp,
-                        color = Color.Gray
-                    )
-                }
-                Button(
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.White,
-                        containerColor = Color(
-                            0xFFF55928
-                        ),
-                    ), onClick = {
-                        show.value = true
-                    }, modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth(0.7f)
-                ) {
-                    Text(text = "Mua hàng")
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f) // Đặt trọng số để chiếm không gian
+                    ) {
+                        item {
+                            Text(
+                                text = prod.name,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Price: $${prod.price}",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFFF55928)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = prod.infor,
+                                fontSize = 16.sp,
+                                color = Color.Gray,
+                                textAlign = TextAlign.Justify,
+                            )
+                        }
+                    }
+
+                    // Button Mua hàng
+                    Button(
+                        onClick = { show.value = true },
+                        modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
+                            .fillMaxWidth(0.7f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFF55928),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(text = "Mua hàng", fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
+
+        // Show dialog for order confirmation
         ShowDialog(
             showDialog = show.value,
             onDismiss = { show.value = false },
-            produc
+            produc,
+            email,
+            viewModel,
+            oderViewModel
         )
 
     } ?: run {
-        Text("Loading product details...", Modifier.padding(16.dp))
+        Text("Loading product details...", Modifier.padding(16.dp), color = Color.Gray)
     }
 }
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -205,7 +250,9 @@ fun ShowDialog(
     showDialog: Boolean,
     onDismiss: () -> Unit,
     pro: String,
-    viewModel: ProViewModel = ProViewModel()
+    email: String,
+    viewModel: ProViewModel,
+    oderViewModel: OderViewModel
 ) {
     val product by viewModel.product.observeAsState()
     val context = LocalContext.current
@@ -330,7 +377,9 @@ fun ShowDialog(
                                 quantity * price,
                                 address,
                                 0,
-                                formattedDateTime
+                                formattedDateTime,
+                                email,
+                                oderViewModel
                             )
                         }
                     }
@@ -359,7 +408,8 @@ fun OderPro(
     address: String,
     status: Int,
     date: String,
-    viewModel: OderViewModel = OderViewModel()
+    email: String,
+    viewModel: OderViewModel
 ) {
     val oder = Oder(
         id = "",
@@ -370,7 +420,8 @@ fun OderPro(
         all = all,
         address = address,
         status = status.toInt(),
-        date = date
+        date = date,
+        emailuser = email
     )
     viewModel.addOder(oder)
 }
@@ -383,7 +434,9 @@ fun shopcart(
     quantity: Number,
     proid: String,
     price: Number,
-    viewModel: ShopcartViewModel = ShopcartViewModel(),
+    email: String,
+    list : List<Shopcart>,
+    viewModel: ShopcartViewModel ,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
@@ -394,7 +447,13 @@ fun shopcart(
     val context = LocalContext.current
     val shopcartItems by viewModel.ShopcartItems.observeAsState(initial = emptyList())
     val lifecycleOwner = LocalLifecycleOwner.current
-
+   val Tag = "MyApp111111111111111";
+    val Tag1 = "MyApp222222222222";
+    val Tag2 = "MyApp33333333333";
+    val Tag4 = "MyApp4444444444444";
+    var number by remember { mutableStateOf(0) }
+    var isUpdated = false
+    var isupdate=false
     LaunchedEffect(Unit) {
         if (shopcartItems.isEmpty()) {
             viewModel.fetchShopcart()
@@ -465,8 +524,6 @@ fun shopcart(
                         0xFFF55928
                     ),
                 ), onClick = {
-                    Log.d("Debug", "ShopcartItems size: ${shopcartItems.size}")
-
                     if (sl.toInt() == 0) {
                         Toast.makeText(
                             context,
@@ -474,56 +531,68 @@ fun shopcart(
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
-                        if (shopcartItems.size == 0) {
-                            val shopcart = Shopcart(proid, sl.toInt(), price.toInt() * sl.toInt())
+                        if(shopcartItems.isEmpty()){
+                            val shopcart =
+                                Shopcart("",
+                                    proid,
+                                    sl.toInt(),
+                                    price.toInt() * sl.toInt(),
+                                    email,0
+                                )
                             viewModel.addshopcart(shopcart)
                             issheetopen = false
                             onDismiss()
-                        } else {
+                            Log.d(Tag, "Value of variable is: " );
+                        }else {
+                            for(shopcart in shopcartItems){
+                                    if (shopcart.emailuser == email&&proid == shopcart.idpro && shopcart.status.toInt()==0) {
+                                        Toast.makeText(
+                                            context,
+                                            "Sản phẩm đã có trong giỏ hàng",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        isUpdated=true
+                                        break
+//                                        number=1
+//                                        isUpdated = true
+//                                        isupdate=true
+//                                        viewModel.updateResponse.observe(
+//                                            lifecycleOwner,
+//                                            Observer { response ->
+//                                                if (response != null && response.isSuccessful) {
+//                                                    Toast.makeText(
+//                                                        context,
+//                                                        "Cập nhật thành công!",
+//                                                        Toast.LENGTH_SHORT
+//                                                    ).show()
+//                                                } else {
+//                                                    Toast.makeText(
+//                                                        context,
+//                                                        "Cập nhật thất bại!",
+//                                                        Toast.LENGTH_SHORT
+//                                                    ).show()
+//                                                }
+//                                            })
 
+                                    }
+                            }
 
-                            shopcartItems.forEach { shopcart ->
-
-                                if (proid == shopcart.idpro) {
-                                    viewModel.updateResponse.observe(
-                                        lifecycleOwner,
-                                        Observer { response ->
-                                            if (response != null && response.isSuccessful) {
-                                                Toast.makeText(
-                                                    context,
-                                                    "Cập nhật thành công!",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            } else {
-                                                Toast.makeText(
-                                                    context,
-                                                    "Cập nhật thất bại!",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
-                                        })
-
-                                    val shopcart = Shopcart(
-                                        proid,
-                                        shopcart.quantity.toInt() + sl.toInt(),
-                                        price.toInt() + sl.toInt() * price.toInt()
-                                    )
-                                    viewModel.updateData(proid, shopcart)
-                                    issheetopen = false
-                                    onDismiss()
-                                } else {
-                                    val shopcart =
-                                        Shopcart(proid, sl.toInt(), price.toInt() * sl.toInt())
-                                    viewModel.addshopcart(shopcart)
-                                    issheetopen = false
-                                    onDismiss()
-//                            Toast.makeText(context,"${proid} và ${shopcart.idpro}",Toast.LENGTH_SHORT).show()
-                                }
-                                Log.d("Debug", "proid: $proid, shopcart.idpro: ${shopcart.idpro}")
-
+                            if (!isUpdated) {
+                                val newShopcart = Shopcart("",
+                                    proid,
+                                    sl.toInt(),
+                                    price.toInt() * sl.toInt(),
+                                    email,0
+                                )
+                                viewModel.addshopcart(newShopcart)
+                                issheetopen = false
+                                isUpdated=false
+                                onDismiss()
+                                Log.d("Tag5", "Added new shopcart item")
                             }
                         }
                     }
+
                 }, modifier = Modifier
                     .fillMaxWidth(0.7f)
             ) {
