@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,34 +33,82 @@ import com.example.app_food.R
 import com.example.app_food.ViewModel.UserViewModel
 
 @Composable
-fun Setting(email : String , navController: NavController,userViewModel: UserViewModel,modifier: Modifier=Modifier){
+fun Setting(
+    email: String,
+    navController: NavController,
+    userViewModel: UserViewModel,
+    modifier: Modifier = Modifier
+) {
     val user by userViewModel.userr.observeAsState()
+
     LaunchedEffect(email) {
         userViewModel.getuser(email)
     }
-    Box (modifier = modifier.fillMaxSize()){
-        Card(onClick = {
-            navController.navigate("userDetail/${email}")
-        }, modifier = Modifier.fillMaxWidth(0.9f).fillMaxHeight(0.15f).align(Alignment.TopCenter)) {
-            user?.let { us->
-                Row(modifier = Modifier.fillMaxHeight().fillMaxWidth(),horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = us.name, fontSize = 20.sp)
+
+    Box(modifier = modifier.fillMaxSize().padding(16.dp)) {
+        // User Info Card
+        Card(
+            onClick = {
+                navController.navigate("userDetail/$email")
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = MaterialTheme.shapes.medium,
+            elevation = CardDefaults.elevatedCardElevation(8.dp)
+        ) {
+            user?.let { us ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Image(
-                        
                         painter = painterResource(R.drawable.user),
-                        contentDescription = "",
-                        modifier = modifier.size(50.dp)
+                        contentDescription = "User Avatar",
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(end = 16.dp)
                     )
-                    Spacer(modifier = Modifier.weight(1f))
-                    Image(painter = painterResource(R.drawable.go), contentDescription = "", modifier = Modifier.size(60.dp).padding(end = 20.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = us.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = us.email,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Image(
+                        painter = painterResource(R.drawable.go),
+                        contentDescription = "Navigate Icon",
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
             }
         }
 
-        Button(onClick = {
-            navController.navigate("signin")
-        }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA500)), modifier = Modifier.align(alignment = Alignment.BottomCenter) ) {
-            Text(text = "Đăng xuất")
+        // Logout Button
+        Button(
+            onClick = {
+                navController.navigate("signin")
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(16.dp)
+                .fillMaxWidth(0.6f),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text(
+                text = "Đăng xuất",
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.labelLarge
+            )
         }
     }
 }

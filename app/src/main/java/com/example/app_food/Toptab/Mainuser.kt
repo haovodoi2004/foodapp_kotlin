@@ -3,17 +3,28 @@ package com.example.app_food.Toptab
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
@@ -37,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.app_food.Model.User
 import com.example.app_food.R
 import com.example.app_food.ViewModel.UserViewModel
@@ -101,7 +113,7 @@ fun User1(userViewModel: UserViewModel){
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(innerpadding)
+                .padding(10.dp)
                 .background(Color.White)
         ) {
             items(listuse, key = { it.id!! }) { item ->
@@ -128,7 +140,7 @@ fun User1(userViewModel: UserViewModel){
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(Color.Red)
+                                .background(Color.Red,shape = RoundedCornerShape(12.dp))
                                 .padding(horizontal = 20.dp),
                             contentAlignment = Alignment.CenterEnd
                         ) {
@@ -170,8 +182,8 @@ fun User2(userViewModel: UserViewModel){
         }
     }
     Box(modifier = Modifier.fillMaxSize()){
-        Column() {
-            Text(text = "Danh sách tài khoản bị khóa")
+        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = "Danh sách tài khoản bị khóa", fontSize = 25.sp, textAlign = TextAlign.Center)
             LazyColumn() {
                 items(listuser, key = { it.id!! }){
                     item->
@@ -193,8 +205,8 @@ fun User3(userViewModel: UserViewModel){
         }
     }
     Box(modifier = Modifier.fillMaxSize()){
-        Column() {
-            Text(text = "Danh sách tài khoản bị xóa")
+        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = "Danh sách tài khoản bị xóa", textAlign = TextAlign.Center, fontSize = 25.sp)
             LazyColumn {
                 items(userlist, key = {it.id!!}){
                     item->
@@ -208,53 +220,70 @@ fun User3(userViewModel: UserViewModel){
 }
 
 @Composable
-fun itemUser(user: User, userViewModel: UserViewModel, list : List<User>) {
+fun itemUser(user: User, userViewModel: UserViewModel, list: List<User>) {
     var showDetail by remember { mutableStateOf(false) }
-    var showUpdate by remember { mutableStateOf(false) } // Quản lý trạng thái sửa
+    var showUpdate by remember { mutableStateOf(false) }
 
     Card(
-        onClick = {
-            showDetail = true
-        },
+
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+        .clickable { showDetail = true },
+    elevation = CardDefaults.elevatedCardElevation(6.dp),
+    shape = RoundedCornerShape(12.dp),
     ) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            Text(text = user.name)
-            Text(text = user.address)
-            Text(text = user.sex.toString())
-            Text(text = user.email)
-            if(user.status==0) {
-                Button(onClick = {
-                    val userr = User(
-                        user.id,
-                        user.email,
-                        user.password,
-                        user.name,
-                        user.address,
-                        user.sex,
-                        1
-                    )
-                    userViewModel.updateUser(user.id.toString(), userr)
-                }) {
-                    Text(text = "KHóa tài khoản")
-                }
-            }else if(user.status==1){
-                Button(onClick = {
-                    val userr = User(
-                        user.id,
-                        user.email,
-                        user.password,
-                        user.name,
-                        user.address,
-                        user.sex,
-                        0
-                    )
-                    userViewModel.updateUser(user.id.toString(), userr)
-                }) {
-                    Text(text = "Mở khóa tài khoản")
-                }
+        Row(
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(40.dp)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = user.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = user.address,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = user.email,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = if (user.sex==0) "Nam" else "Nữ",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Button(
+                onClick = {
+                    val updatedUser = user.copy(status = if (user.status == 0) 1 else 0)
+                    userViewModel.updateUser(user.id.toString(), updatedUser)
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (user.status == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(text = if (user.status == 0) "Khóa" else "Mở khóa")
             }
         }
     }
@@ -263,7 +292,6 @@ fun itemUser(user: User, userViewModel: UserViewModel, list : List<User>) {
         showUserDetail(
             onDismiss = { showDetail = false },
             onUpdate = {
-
                 showDetail = false
                 showUpdate = true
             },
@@ -271,14 +299,12 @@ fun itemUser(user: User, userViewModel: UserViewModel, list : List<User>) {
         )
     }
 
-
-
     if (showUpdate) {
         showUserUpdate(
             user = user,
             onDismiss = { showUpdate = false },
             userViewModel = userViewModel,
-            list
+            list = list
         )
     }
 }

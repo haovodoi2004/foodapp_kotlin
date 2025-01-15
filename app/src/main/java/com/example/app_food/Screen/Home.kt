@@ -440,7 +440,9 @@ fun Search(viewModel: ProViewModel,navController: NavController,email: String){
                 Text(
                     text = "No results found.",
                     color = Color.Gray,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 16.sp,
+
                 )
             }
         }

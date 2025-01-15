@@ -91,7 +91,7 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
                 }
                 NavigationDrawerItem(label = { Text(text = "logout" , color = Color.Black) },
                     selected = false,
-                    icon = { Icon(painter = painterResource(R.drawable.home), contentDescription = "", tint = Color.Black,modifier = Modifier.size(30.dp))},
+                    icon = { Icon(painter = painterResource(R.drawable.logout), contentDescription = "", tint = Color.Black,modifier = Modifier.size(30.dp))},
                     onClick = {
                         coroutineScope.launch {
                             drawerState.close()

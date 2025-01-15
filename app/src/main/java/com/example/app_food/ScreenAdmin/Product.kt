@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -56,6 +57,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -85,6 +87,7 @@ fun Product(
     var showDialog by remember { mutableStateOf(false) }
     var selectedId by remember { mutableStateOf("") }
     var show by remember { mutableStateOf(false) }
+    var visibleProducts by remember { mutableStateOf(emptyList<Product>()) }
     var produc = Product(
         id = "",
         name = "",
@@ -131,11 +134,14 @@ fun Product(
         filteredProducts = if (selectedCategory.isEmpty()) {
             listProduct
         } else {
-            listProduct.filter { it.category == selectedCategory }
+            listProduct.filter { it.category == selectedCategory
+            }
         }
     }
 
-
+    LaunchedEffect(filteredProducts) {
+        visibleProducts = filteredProducts.filter { it.status.toInt() == 0 }
+    }
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Giao diện danh mục
@@ -150,12 +156,12 @@ fun Product(
                 modifier = Modifier
                     .fillMaxWidth()
 //                    .weight(1f) // Để LazyColumn tự điều chỉnh chiều cao
-                    .padding(start = 16.dp, end = 16.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
                     .background(Color.White),
-                verticalArrangement = Arrangement.spacedBy(16.dp) // Khoảng cách giữa các item
+
 
             ) {
-                items(filteredProducts, key = { it.id!! }) { product ->
+                items(visibleProducts, key = { it.id!! }) { product ->
                     val dismissState = rememberSwipeToDismissBoxState(
                         confirmValueChange = {
                             Log.d("jfaoijoejg","$it")
@@ -172,6 +178,8 @@ fun Product(
 
                     SwipeToDismissBox(
                         state = dismissState,
+                        modifier = Modifier
+                            .padding(vertical = 8.dp),
                         backgroundContent = {
                             Box(
                                 modifier = Modifier
@@ -366,7 +374,11 @@ fun CategoryItems(title: String,onSelect : (String) -> Unit){
 }
 
 @Composable
-fun dropMenu(listProtype: List<Protype>, selectedCategory: String, onCategorySelected: (String) -> Unit) {
+fun dropMenu(
+    listProtype: List<Protype>,
+    selectedCategory: String,
+    onCategorySelected: (String) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf(selectedCategory) }
 
@@ -377,23 +389,45 @@ fun dropMenu(listProtype: List<Protype>, selectedCategory: String, onCategorySel
             label = { Text(text = "Danh mục") },
             trailingIcon = {
                 IconButton(onClick = { expanded = !expanded }) {
-                    Icon(imageVector = Icons.Rounded.ArrowDropDown, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Rounded.ArrowDropDown,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
             },
             modifier = Modifier.fillMaxWidth(),
             readOnly = true
         )
 
-        DropdownMenu (expanded = expanded, onDismissRequest = { expanded = false }) {
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+                .fillMaxWidth() // Đặt chiều rộng tự động
+                .heightIn(max = 300.dp) // Giới hạn chiều cao tối đa
+                .clip(MaterialTheme.shapes.medium) // Bo góc
+        ) {
             listProtype.forEach { protype ->
-                DropdownMenuItem(
-                    text = { Text(text = protype.name) },
-                    onClick = {
-                        selectedText = protype.name
-                        onCategorySelected(protype.name)
-                        expanded = false
-                    }
-                )
+                Box(modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = protype.name,
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
+                            )
+                        },
+                        onClick = {
+                            selectedText = protype.name
+                            onCategorySelected(protype.name)
+                            expanded = false
+                        },
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp) // Khoảng cách giữa các mục
+
+                    )
+                }
             }
         }
     }

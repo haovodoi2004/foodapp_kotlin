@@ -29,6 +29,7 @@ import com.example.app_food.Screen.Home
 import com.example.app_food.Screen.Sigin
 import com.example.app_food.Screen.Sigup
 import com.example.app_food.Bottombar.MainScreen
+import com.example.app_food.Bottombar.Setting
 import com.example.app_food.Bottombar.userDetail
 import com.example.app_food.BottombarAdmin.LearnNavDrawer
 import com.example.app_food.Screen.ProductDetail
@@ -95,7 +96,10 @@ class MainActivity : ComponentActivity() {
 
                 val email = backStackEntry.arguments?.getString("email")
                 if ( email != null) {
-                    userDetail(email,navController,userViewModel)
+                    userDetail(onClick={
+                        navController.navigate("")
+                    },
+                        email,navController,userViewModel)
                 } else {
                     Toast.makeText(context,"product id lỗi cmnr",Toast.LENGTH_SHORT).show()
                     // Xử lý trường hợp null (ví dụ hiển thị thông báo lỗi hoặc điều hướng về màn hình khác)
@@ -120,7 +124,32 @@ class MainActivity : ComponentActivity() {
 
             }
 
-    }
+
+//            composable(
+//                route = "setting",
+//                arguments = listOf(
+//                    navArgument("email") {
+//                        type = NavType.StringType
+//                        nullable = false
+//                    }
+//                )
+//            ) { backStackEntry ->
+//                val email = backStackEntry.arguments?.getString("email")
+//                if (email != null) {
+//                    Setting(
+//                        email = email,
+//                        navController = navController,
+//                        userViewModel = userViewModel,
+//                        modifier = Modifier
+//                    )
+//                } else {
+//                    // Xử lý lỗi nếu email bị null
+//                }
+//            }
+
+
+
+        }
 
 @Composable
 fun ForgotPasswordScreen(onBack: () -> Unit) {

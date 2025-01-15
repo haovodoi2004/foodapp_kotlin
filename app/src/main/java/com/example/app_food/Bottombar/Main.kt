@@ -48,7 +48,9 @@ fun MainScreen(navController: NavController,proViewModel: ProViewModel,protypeVi
                     NavigationBarItem(
                         selected = selectedIdex==index,
                         onClick = {
-                            selectedIdex = index },
+                            selectedIdex = index
+                            // Sử dụng NavController để điều hướng đến màn hình tương ứng
+                           },
                         icon= {
                             BadgedBox(badge = {
                                 Badge( modifier = Modifier.padding(4.dp) ){

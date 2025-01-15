@@ -296,7 +296,7 @@ fun ShopCartItem(
                                 // Decrease Quantity Button
                                 IconButton(
                                     onClick = {
-                                        if (sl > 0) {
+                                        if (sl+ shopcart.quantity.toInt() > 0) {
                                             sl--
                                             totalPrice =
                                                 (sl + shopcart.quantity.toInt()) * pr.price.toInt()
@@ -309,6 +309,7 @@ fun ShopCartItem(
                                                 0
                                             )
                                             viewModel.updateData(shopcart.id, updatedShopCart)
+                                            sl=0
                                         } else {
                                             Toast.makeText(
                                                 context,
@@ -347,6 +348,7 @@ fun ShopCartItem(
                                                 0
                                             )
                                             viewModel.updateData(shopcart.id, updatedShopCart)
+                                            sl=0
                                         } else {
                                             Toast.makeText(
                                                 context,

@@ -57,9 +57,8 @@ class UserViewModel : ViewModel(){
             val respone = RetrofitInstance.api.updateuser(id,user)
             try {
                 if (respone.isSuccessful) {
+                    getuser(user.email)
                     fetch()
-                    val updatedUser = RetrofitInstance.api.getuserbyemail(id)
-                    userr.postValue(updatedUser.body())
                 } else {
                     Log.e("API update user ", " Error ${respone.errorBody()?.string()}")
                 }

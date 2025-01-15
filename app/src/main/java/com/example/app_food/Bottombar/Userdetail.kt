@@ -1,5 +1,6 @@
 package com.example.app_food.Bottombar
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,8 +17,11 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -42,97 +46,186 @@ import com.example.app_food.R
 import com.example.app_food.ViewModel.UserViewModel
 
 @Composable
-fun userDetail(email : String,navController: NavController,userViewModel: UserViewModel){
+fun userDetail(onClick:()->Unit,email: String, navController: NavController, userViewModel: UserViewModel) {
     val user by userViewModel.userr.observeAsState()
-    var show by remember { mutableStateOf(false) }
-    var uerr = User("","","","","",0,0)
-    LaunchedEffect(email) {
+    var showDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(user) {
         userViewModel.getuser(email)
     }
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 20.dp).fillMaxWidth()) {
-            user?.let {
-                us->
-                uerr=User(us.id,us.email,us.password,us.name,us.address,us.sex,us.status)
-                IconButton(onClick = {navController.navigateUp()}, modifier = Modifier.align(alignment = Alignment.Start)) {
-                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "")
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Header: Nút Back và Avatar
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = {   navController.popBackStack() }) { // Nút Back
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Quay lại",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
-                Text(text = "Thông tin nguoi dung", fontSize = 30.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
-                Image(painter = painterResource(R.drawable.user), contentDescription = "", modifier = Modifier.size(70.dp))
-                Text(text = "Họ và tên : ${us.name}", fontSize = 20.sp, modifier = Modifier.fillMaxWidth())
-                Text(text = "Email : ${us.email}", fontSize = 20.sp, modifier = Modifier.fillMaxWidth())
-                Text(text = "Địa chỉ : ${us.address}", fontSize = 20.sp, modifier = Modifier.fillMaxWidth())
-                if(us.sex==0){
-                    Text(text = "Giới tính : nam", fontSize = 20.sp, modifier = Modifier.fillMaxWidth())
-                }else{
-                    Text(text = "Giới tính : nữ", fontSize = 20.sp, modifier = Modifier.fillMaxWidth())
+                Spacer(modifier = Modifier.weight(1f)) // Đẩy avatar về giữa
+            }
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.user),
+                    contentDescription = "Avatar",
+                    modifier = Modifier
+                        .size(120.dp)
+                        .padding(8.dp)
+                )
+                user?.let { us ->
+                    Text(
+                        text = us.name,
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                    Text(
+                        text = us.email,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
                 }
-                Text(text = "status ${us.status}")
+            }
+
+            // Body: Thông tin chi tiết
+            Card(
+                shape = MaterialTheme.shapes.medium,
+                elevation = CardDefaults.elevatedCardElevation(4.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    user?.let { us ->
+                        InfoRow(label = "Địa chỉ", value = us.address)
+                        InfoRow(label = "Giới tính", value = if (us.sex.toInt() == 0) "Nam" else "Nữ")
+                        InfoRow(label = "Trạng thái", value = if (us.status.toInt() == 1) "Hoạt động" else "Không hoạt động")
+                    }
+                }
+            }
+
+            // Footer: Nút sửa thông tin
+            Button(
+                onClick = { showDialog = true },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+            ) {
+                Text(text = "Sửa thông tin")
             }
         }
-        Button(onClick = {show=true}, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA500)), modifier = Modifier.align(
-            Alignment.BottomCenter)){
-            Text(text = "Sửa thông tin")
-        }
-        if(show){
-         updateDialog(onDismiss = {show=false},uerr,userViewModel)
+
+        // Dialog sửa thông tin
+        if (showDialog) {
+            user?.let { updateDialog(onDismiss = { showDialog = false }, it, userViewModel) }
         }
     }
 }
 
 @Composable
-fun updateDialog(onDismiss : ()-> Unit,user: User,userViewModel: UserViewModel) {
+fun InfoRow(label: String, value: String?) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Text(
+            text = "$label:",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f),
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = value ?: "Không có dữ liệu",  // Kiểm tra null và thay thế bằng thông báo "Không có dữ liệu"
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(2f)
+        )
+    }
+}
+
+@Composable
+fun updateDialog(onDismiss: () -> Unit, user: User, userViewModel: UserViewModel) {
     var name by remember { mutableStateOf(user.name) }
     var email by remember { mutableStateOf(user.email) }
     var address by remember { mutableStateOf(user.address) }
     var sex by remember { mutableStateOf(user.sex) }
+
     AlertDialog(
-        onDismissRequest = {onDismiss()},
-        title = { Text(text = "Sửa thông tin") },
+        onDismissRequest = { onDismiss() },
+        title = { Text(text = "Sửa thông tin", style = MaterialTheme.typography.titleLarge) },
         text = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text(text = "Nhập họ và tên") })
+                    label = { Text("Nhập họ và tên") },
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                )
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
-                    label = { Text(text = "Nhập email") })
+                    label = { Text("Nhập email") },
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                )
                 OutlinedTextField(
                     value = address,
                     onValueChange = { address = it },
-                    label = { Text(text = "Nhập địa chỉ") })
-                Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
-                    Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(
-                            selected = sex == 0,
-                            onClick = { sex = 0 },
-                            modifier = Modifier.fillMaxWidth(0.1f)
-                        )
-                        Text(text = "Nam")
+                    label = { Text("Nhập địa chỉ") },
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                )
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(selected = sex == 0, onClick = { sex = 0 })
+                        Text(text = "Nam", style = MaterialTheme.typography.bodyLarge)
                     }
-                    Spacer(modifier = Modifier.size(20.dp))
-                    Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(
-                            selected = sex == 1,
-                            onClick = { sex = 1 },
-                            modifier = Modifier.fillMaxWidth(0.1f)
-                        )
-                        Text(text = "Nữ")
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(selected = sex == 1, onClick = { sex = 1 })
+                        Text(text = "Nữ", style = MaterialTheme.typography.bodyLarge)
                     }
                 }
             }
         },
-        confirmButton = { TextButton(onClick = {
-            val user = User(user.id,email,user.password,name,address,sex,user.status)
-            userViewModel.updateUser(user.id.toString(),user)
-            onDismiss()
-        }){
-            Text(text = "Ok")
-        } },
+        confirmButton = {
+            TextButton(onClick = {
+                val updatedUser = User(user.id.toString(), email, user.password, name, address, sex.toInt(), user.status.toInt())
+                userViewModel.updateUser(user.id.toString(), updatedUser)
+                Log.d("jiodjefioehf","${updatedUser}")
+                onDismiss()
+            }) {
+                Text(text = "Ok", color = MaterialTheme.colorScheme.primary)
+            }
+        },
         dismissButton = {
-            TextButton(onClick = {onDismiss()}){
-                Text(text = "Hủy")
-            }  })
+            TextButton(onClick = { onDismiss() }) {
+                Text(text = "Hủy", color = MaterialTheme.colorScheme.error)
+            }
+        }
+    )
 }
