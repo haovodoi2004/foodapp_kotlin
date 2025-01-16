@@ -1,6 +1,7 @@
 package com.example.app_food.BottombarAdmin
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,14 +44,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.app_food.Bottombar.userDetail
+import com.example.app_food.Model.User
 import com.example.app_food.R
 import com.example.app_food.Screen.Sigin
+import com.example.app_food.ScreenAdmin.ChangePassword
 import com.example.app_food.ScreenAdmin.Home
 import com.example.app_food.ScreenAdmin.New
 import com.example.app_food.ScreenAdmin.Newdetail
 import com.example.app_food.ScreenAdmin.Product
 
 import com.example.app_food.ScreenAdmin.Productype
+import com.example.app_food.ScreenAdmin.Setting
 import com.example.app_food.ScreenAdmin.Turnover
 import com.example.app_food.ScreenAdmin.productDetailAdmin
 import com.example.app_food.Toptab.Main
@@ -66,7 +71,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "NewApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: ProViewModel=ProViewModel(),ProtypeViewModel: ProtypeViewModel=ProtypeViewModel(),OderViewModel: OderViewModel= OderViewModel(),newViewModel: NewViewModel=NewViewModel(),onClick : ()->Unit) {
+fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: ProViewModel=ProViewModel(),ProtypeViewModel: ProtypeViewModel=ProtypeViewModel(),OderViewModel: OderViewModel= OderViewModel(),newViewModel: NewViewModel=NewViewModel(),onClick : ()->Unit,email : String) {
     val navigationController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -85,7 +90,9 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
                             contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                        Image(painter = painterResource(R.drawable.user), contentDescription = "", modifier = Modifier.height(height*0.15f).width(weight*0.3f))
+                        Image(painter = painterResource(R.drawable.user), contentDescription = "", modifier = Modifier
+                            .height(height * 0.15f)
+                            .width(weight * 0.3f))
                         Text(text = "Admin", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 25.sp)
                     }
                 }
@@ -120,6 +127,18 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
                             drawerState.close()
                         }
                         navigationController.navigate(Screens.Turnover.screen){
+                            popUpTo(0)
+                        }
+                    })
+
+                NavigationDrawerItem(label = { Text(text = "Setting" , color = Color.Black) },
+                    selected = false,
+                    icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "", tint = Color.Black, modifier = Modifier.size(30.dp))},
+                    onClick = {
+                        coroutineScope.launch {
+                            drawerState.close()
+                        }
+                        navigationController.navigate(Screens.Setting.screen){
                             popUpTo(0)
                         }
                     })
@@ -204,6 +223,10 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
             }
                 composable(Screens.User.screen) { Mainuser(userViewModel)  }
                 composable(Screens.Oder.screen) { Main(OderViewModel,ProViewModel)  }
+            composable(
+                Screens.Setting.screen
+            ) {
+                Setting(userViewModel, email =email, navController = navigationController) }
                 composable(Screens.New.screen) { New(onClick = {
                     newId->
                     navigationController.navigate("newDetail/$newId")},newViewModel, navController = navigationController)  }
@@ -215,6 +238,21 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
             ) { backStackEntry ->
                 val productId = backStackEntry.arguments?.getString("productId") ?: ""
                 productDetailAdmin(productId,navigationController, protypeViewModel = ProtypeViewModel, viewModel = ProViewModel)
+            }
+
+            composable(
+                route = "userDetail/{email}",
+
+            ) {
+                    userDetail(onClick={
+                        navigationController.navigate("")
+                    },
+                        email,navigationController,userViewModel)
+            }
+
+            composable(route = "changePassword/{email}") {
+
+                ChangePassword(navigationController,userViewModel,email)
             }
 
             composable(

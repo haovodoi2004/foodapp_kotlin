@@ -65,7 +65,7 @@ fun Sigin(onSignupClick: () -> Unit,navController: NavController,userViewModel: 
                             }
                             3 -> { // Điều hướng đến màn hình admin
                                 Toast.makeText(context, "Đăng nhập với quyền Admin!", Toast.LENGTH_SHORT).show()
-                                navController.navigate("mainadmin") {
+                                navController.navigate("mainadmin/$email") {
                                     popUpTo("signin") { inclusive = true }
                                 }
                             }

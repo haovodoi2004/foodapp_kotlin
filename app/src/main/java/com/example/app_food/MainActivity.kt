@@ -69,10 +69,17 @@ class MainActivity : ComponentActivity() {
                 Home(navController, proViewModel, protypeViewModel, email!!, modifier = Modifier)
             }
 
-            composable("mainadmin"){
+            composable("mainadmin/{email}",
+                arguments = listOf(navArgument("email") { type = NavType.StringType })){
+                    backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("email")
+                if(userId!=null){
                 LearnNavDrawer(onClick = {
                     navController.navigate("signin")
-                })
+                },email = userId)
+                }else{
+                    Toast.makeText(context,"product id lỗi cmnr",Toast.LENGTH_SHORT).show()
+                }
             }
 
             composable("main/{email}",
