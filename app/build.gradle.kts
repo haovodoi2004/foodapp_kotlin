@@ -82,5 +82,6 @@ dependencies {
     implementation ("androidx.compose.foundation:foundation:1.7.5")
     implementation("androidx.compose.material:material-icons-extended-android:1.7.5")
     implementation ("com.google.code.gson:gson:2.10")
+    implementation ("org.mindrot:jbcrypt:0.4")
 
 }

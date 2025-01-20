@@ -1,5 +1,6 @@
 package com.example.app_food.ApiServer
 
+import com.example.app_food.Model.ChancePassword
 import com.example.app_food.Model.New
 import com.example.app_food.Model.Oder
 import com.example.app_food.Model.Product
@@ -83,6 +84,15 @@ interface Apiserver {
 
     @POST("new/addnew")
     suspend fun addnew(@Body new : New) : Response<New>
+
+    @POST("us/sendOTPVerificationEmail")
+    suspend fun sendOTP(@Body request: ChancePassword.SendOTPRequest): ChancePassword.ApiResponse
+
+    @POST("us/verifyOTP")
+    suspend fun verifyOTP(@Body request: ChancePassword.VerifyOTPRequest): ChancePassword.ApiResponse
+
+    @POST("us/resetPassword")
+    suspend fun resetPassword(@Body request: ChancePassword.ResetPasswordRequest): ChancePassword.ApiResponse
 
 
 

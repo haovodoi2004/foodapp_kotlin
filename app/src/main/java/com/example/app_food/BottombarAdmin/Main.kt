@@ -226,7 +226,7 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
             composable(
                 Screens.Setting.screen
             ) {
-                Setting(userViewModel, email =email, navController = navigationController) }
+                Setting(userViewModel, email =email, navController = navigationController,onClick) }
                 composable(Screens.New.screen) { New(onClick = {
                     newId->
                     navigationController.navigate("newDetail/$newId")},newViewModel, navController = navigationController)  }

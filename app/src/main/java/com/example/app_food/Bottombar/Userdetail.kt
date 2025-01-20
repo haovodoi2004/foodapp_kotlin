@@ -189,6 +189,7 @@ fun updateDialog(onDismiss: () -> Unit, user: User, userViewModel: UserViewModel
                     value = email,
                     onValueChange = { email = it },
                     label = { Text("Nhập email") },
+                    enabled = false,
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
                 )
                 OutlinedTextField(

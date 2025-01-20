@@ -1,5 +1,6 @@
 package com.example.app_food.ScreenAdmin
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import org.mindrot.jbcrypt.BCrypt
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -41,6 +43,7 @@ fun ChangePassword(navController: NavController,userViewModel: UserViewModel,ema
     var confirmPassword by remember { mutableStateOf("") }
     val user by userViewModel.userr.observeAsState()
     var show by remember { mutableStateOf(false) }
+    var show1 by remember { mutableStateOf(false) }
     LaunchedEffect(email) {
         userViewModel.getuser(email)
     }
@@ -113,22 +116,25 @@ fun ChangePassword(navController: NavController,userViewModel: UserViewModel,ema
         Button(
             onClick = {
                 if(oldPassword.isEmpty()||newPassword.isEmpty()||confirmPassword.isEmpty()){
-
-                }
-                user?.let { us->
-                    if(oldPassword!=us.password){
-                       show=true
-                    }else {
-                        val userr = User(
-                            email = email,
-                            password = newPassword,
-                            name = us.name,
-                            address = us.address,
-                            sex = us.sex,
-                            status = us.status
-                        )
-                        userViewModel.updateUser(email, userr)
-                        navController.popBackStack()
+                    show1=true
+                }else {
+                    user?.let { us ->
+                        if (!BCrypt.checkpw(oldPassword, us.password)) {
+                            show = true
+                            Log.d("fyujfyjfyjh","$oldPassword - ${us.password}")
+                        } else {
+                            val hashedNewPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt())
+                            val userr = User(
+                                email = email,
+                                password = hashedNewPassword,
+                                name = us.name,
+                                address = us.address,
+                                sex = us.sex,
+                                status = us.status
+                            )
+                            userViewModel.updateUser(us.id!!, userr)
+                            navController.popBackStack()
+                        }
                     }
                 }
             },
@@ -160,16 +166,37 @@ fun ChangePassword(navController: NavController,userViewModel: UserViewModel,ema
         if(show==true){
             show(onDissmiss = {show=false})
         }
+        if(show1==true){
+            show1(onDissmiss = {show1=false})
+        }
     }
+}
+
+@Composable
+fun show1(onDissmiss :()->Unit){
+    AlertDialog(onDismissRequest = {onDissmiss()},
+
+        title = {
+            Text("Thông báo")
+        },
+        text = {
+            Text("Bạn không được để trống ô nhập")
+        },
+        confirmButton = {
+            Button(onDissmiss)  {
+                Text("Ok")
+            }},
+    )
 }
 
 @Composable
 fun show(onDissmiss :()->Unit){
     AlertDialog(onDismissRequest = {onDissmiss()},
-        text = {
+
+        title = {
             Text("Thông báo")
         },
-        title = {
+        text = {
             Text("Mật khẩu cũ không đúng")
         },
         confirmButton = {

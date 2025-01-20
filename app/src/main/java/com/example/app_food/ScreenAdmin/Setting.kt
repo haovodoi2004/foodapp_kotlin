@@ -42,7 +42,7 @@ import com.example.app_food.R
 import com.example.app_food.ViewModel.UserViewModel
 
 @Composable
-fun Setting(userViewModel: UserViewModel,email: String,navController: NavController){
+fun Setting(userViewModel: UserViewModel,email: String,navController: NavController,onClick: () -> Unit){
     Box(){
         val user by userViewModel.userr.observeAsState()
 
@@ -138,7 +138,7 @@ fun Setting(userViewModel: UserViewModel,email: String,navController: NavControl
                 // Logout Button
                 Button(
                     onClick = {
-                        navController.navigate("signin")
+                        onClick()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier

@@ -32,7 +32,9 @@ import com.example.app_food.Bottombar.MainScreen
 import com.example.app_food.Bottombar.Setting
 import com.example.app_food.Bottombar.userDetail
 import com.example.app_food.BottombarAdmin.LearnNavDrawer
+import com.example.app_food.Screen.ForgotPasswordScreen
 import com.example.app_food.Screen.ProductDetail
+import com.example.app_food.ViewModel.ForgotPasswordViewModel
 import com.example.app_food.ViewModel.OderViewModel
 import com.example.app_food.ViewModel.ProViewModel
 import com.example.app_food.ViewModel.ProtypeViewModel
@@ -50,7 +52,7 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("NewApi")
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun AppNavigation(proViewModel: ProViewModel=ProViewModel(),protypeViewModel: ProtypeViewModel=ProtypeViewModel(),oderViewModel: OderViewModel=OderViewModel(),userViewModel: UserViewModel=UserViewModel(),shopcartViewModel: ShopcartViewModel=ShopcartViewModel()){
+    fun AppNavigation(forgotPasswordViewModel: ForgotPasswordViewModel=ForgotPasswordViewModel(),proViewModel: ProViewModel=ProViewModel(),protypeViewModel: ProtypeViewModel=ProtypeViewModel(),oderViewModel: OderViewModel=OderViewModel(),userViewModel: UserViewModel=UserViewModel(),shopcartViewModel: ShopcartViewModel=ShopcartViewModel()){
         val navController= rememberNavController()
         val context= LocalContext.current
         NavHost(navController=navController, startDestination = "signin") {
@@ -113,6 +115,11 @@ class MainActivity : ComponentActivity() {
                 }
 
             }
+
+            composable(route = "forgot") {
+                ForgotPasswordScreen(userViewModel,forgotPasswordViewModel)
+            }
+
             composable(
                 route = "productDetail/{productId}/{email}",
                 arguments = listOf(
