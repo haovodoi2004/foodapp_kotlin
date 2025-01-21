@@ -3,7 +3,6 @@ package com.example.app_food.Screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -17,11 +16,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.app_food.ViewModel.ForgotPasswordViewModel
 import com.example.app_food.ViewModel.UserViewModel
 
 @Composable
-fun ForgotPasswordScreen(userViewModel: UserViewModel,forgotPasswordViewModel: ForgotPasswordViewModel) {
+fun SendOTPScreen(navController: NavController,userViewModel: UserViewModel,forgotPasswordViewModel: ForgotPasswordViewModel) {
     var email by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
 
@@ -89,6 +89,7 @@ fun ForgotPasswordScreen(userViewModel: UserViewModel,forgotPasswordViewModel: F
                 onClick = {
                     if (email.isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                         forgotPasswordViewModel.sendOTP(email)
+                       navController.navigate("otp/$email")
                     } else {
 
                     }

@@ -133,7 +133,7 @@ fun Sigin(onSignupClick: () -> Unit,navController: NavController,userViewModel: 
                 Text(text = "Remember me")
             }
             TextButton(onClick = {
-                navController.navigate("forgot")
+                navController.navigate("sendotp")
             }) { //onForgotPassword
                 Text(text = "Forgot Password", color = Color.Blue)
             }

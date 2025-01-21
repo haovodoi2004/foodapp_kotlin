@@ -32,8 +32,10 @@ import com.example.app_food.Bottombar.MainScreen
 import com.example.app_food.Bottombar.Setting
 import com.example.app_food.Bottombar.userDetail
 import com.example.app_food.BottombarAdmin.LearnNavDrawer
-import com.example.app_food.Screen.ForgotPasswordScreen
+import com.example.app_food.Screen.OTP
 import com.example.app_food.Screen.ProductDetail
+import com.example.app_food.Screen.ResetPassword
+import com.example.app_food.Screen.SendOTPScreen
 import com.example.app_food.ViewModel.ForgotPasswordViewModel
 import com.example.app_food.ViewModel.OderViewModel
 import com.example.app_food.ViewModel.ProViewModel
@@ -116,8 +118,20 @@ class MainActivity : ComponentActivity() {
 
             }
 
-            composable(route = "forgot") {
-                ForgotPasswordScreen(userViewModel,forgotPasswordViewModel)
+            composable(route = "sendotp") {
+                SendOTPScreen(navController,userViewModel,forgotPasswordViewModel)
+            }
+
+            composable(route = "otp/{email}",
+                arguments = listOf(navArgument("email") { type = NavType.StringType })) { backStackEntry ->
+                val email = backStackEntry.arguments?.getString("email")
+                OTP(navController, forgotPasswordViewModel,email!!)
+            }
+
+            composable(route = "resetpassword/{email}",
+                arguments = listOf(navArgument("email") { type = NavType.StringType })) { backStackEntry ->
+                val email = backStackEntry.arguments?.getString("email")
+                ResetPassword(navController, forgotPasswordViewModel,email!!,userViewModel)
             }
 
             composable(
