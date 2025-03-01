@@ -46,6 +46,9 @@ interface Apiserver {
     @GET("new/getbyidnew/{id}")
     suspend fun getNewid(@Path("id") id:String) : Response<New>
 
+    @GET("oder/getbyidoder/{id}")
+    suspend fun getoderbyid(@Path("id") id:String) : Response<Oder>
+
     @GET("shopcart/getlistshopcart")
     suspend fun getlistshopcart(): List<Shopcart>
 

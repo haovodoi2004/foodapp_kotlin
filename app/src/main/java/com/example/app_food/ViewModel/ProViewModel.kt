@@ -17,6 +17,7 @@ class ProViewModel:ViewModel() {
     val product: LiveData<Product> = _product
     val Product= MutableLiveData<List<Product>>()
     val Product1= MutableLiveData<List<Product>>()
+    val Product2= MutableLiveData<List<Product>>()
     val pro=MutableLiveData<Product>()
 
     private val _products = mutableStateOf<Map<String, Product>>(emptyMap())
@@ -24,6 +25,19 @@ class ProViewModel:ViewModel() {
 
     fun clearSearchResults() {
         Product1.postValue(emptyList())
+    }
+
+    fun gettprobyname(name : String){
+        viewModelScope.launch {
+            val respone = RetrofitInstance.api.getproductbyname(name)
+            try {
+                if(respone.isNotEmpty()){
+                    Product2.postValue(respone)
+                }
+            }catch (e : Exception){
+                e.printStackTrace()
+            }
+        }
     }
 
     fun getprobyname(name : String){
@@ -45,8 +59,9 @@ class ProViewModel:ViewModel() {
                 val respone = RetrofitInstance.api.addproductt(pro)
                 if(respone.isSuccessful){
                     val updatedList = RetrofitInstance.api.getproduct()
-                    Product.postValue(updatedList)
-
+//                    Product.postValue(updatedList)
+                    _products.value=updatedList.associateBy { it.id!! }
+                    fetchProduct()
                 }
             }catch (e:Exception){
                 e.printStackTrace()
@@ -85,6 +100,22 @@ class ProViewModel:ViewModel() {
         }
     }
 
+    fun fetchProduct1() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.api.getproduct()
+                if (response.isNotEmpty()) {
+                    Product1.postValue(response)
+                } else {
+                    Product1.postValue(response)
+                }
+            } catch (e: Exception) {
+                Log.e("Error", e.localizedMessage ?: "Unknown Error", e)
+                Product.postValue(emptyList())
+            }
+        }
+    }
+
     fun updateProduct(idpro : String,pro : Product){
         viewModelScope.launch {
             try {
@@ -92,6 +123,7 @@ class ProViewModel:ViewModel() {
                 if(respone.isSuccessful){
                     gettProById(idpro)
                     fetchProduct()
+                    getProById(idpro)
                 }else{
                     Log.e("API Error", "Error: ${respone.errorBody()?.string()}")
                 }

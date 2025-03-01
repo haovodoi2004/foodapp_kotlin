@@ -20,13 +20,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -34,7 +41,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -197,10 +206,17 @@ fun ProductDetail(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "Price: $${prod.price}",
+                                text = "Giá: $${prod.price}",
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFF55928)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Số lượng: $${prod.quantity}",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
@@ -256,147 +272,107 @@ fun ShowDialog(
 ) {
     val product by viewModel.product.observeAsState()
     val context = LocalContext.current
-    val show = remember { mutableStateOf(false) }
-    var productQuantity by remember { mutableStateOf(0) }
-    var proid by remember { mutableStateOf("") }
+    var quantity by remember { mutableStateOf(1) }
     val formattedDateTime =
         LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 
     LaunchedEffect(pro) {
         viewModel.getProById(pro)
-        product?.let {
-            productQuantity = it.quantity.toInt() // Lưu số lượng sản phẩm
-
-        }
     }
+
     if (showDialog) {
         var name by remember { mutableStateOf("") }
         var address by remember { mutableStateOf("") }
         var phone by remember { mutableStateOf("") }
-        var quantity by remember { mutableStateOf(0) }
-        var all by remember { mutableStateOf(0) }
-        var price by remember { mutableStateOf(0) }
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text(text = "Điền thông tin mua hàng") },
+            title = {  Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Text(text = "Điền thông tin mua hàng", style = MaterialTheme.typography.titleLarge)
+            } },
             text = {
                 product?.let { prod ->
-                    Column {
-                        proid = prod.id
-                        price = prod.price.toInt()
-                        AsyncImage(model = prod.avatar, contentDescription = "")
+                    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                        AsyncImage(
+                            model = prod.avatar,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(12.dp))
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
                         OutlinedTextField(
                             value = name,
                             onValueChange = { name = it },
-                            label = { Text(text = "họ và tên") },
-                            modifier = Modifier.fillMaxWidth(0.8f)
+                            label = { Text("Họ và tên") },
+                            leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = null) },
+                            modifier = Modifier.fillMaxWidth()
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
                             value = address,
                             onValueChange = { address = it },
-                            label = { Text(text = "Địa chỉ nhập hàng") },
-                            modifier = Modifier.fillMaxWidth(0.8f)
+                            label = { Text("Địa chỉ nhập hàng") },
+                            leadingIcon = { Icon(imageVector = Icons.Default.Home, contentDescription = null) },
+                            modifier = Modifier.fillMaxWidth()
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
                             value = phone,
                             onValueChange = { phone = it },
-                            label = { Text(text = "Số điện thoại") },
-                            modifier = Modifier.fillMaxWidth(0.8f)
+                            label = { Text("Số điện thoại") },
+                            leadingIcon = { Icon(imageVector = Icons.Default.Phone, contentDescription = null) },
+                            modifier = Modifier.fillMaxWidth()
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding(16.dp)
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             IconButton(onClick = {
-                                if (quantity == 0) {
-                                    Toast.makeText(
-                                        context,
-                                        "Đã đạt số lượng giảm tối đa",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    quantity--
-                                }
+                                if (quantity > 1) quantity--
                             }) {
-                                Icon(
-                                    painter = painterResource(R.drawable.minus),
-                                    contentDescription = "",
-                                    modifier = Modifier.size(20.dp)
-                                )
+                                Icon(imageVector = Icons.Default.RemoveCircle, contentDescription = "Giảm số lượng")
                             }
-                            Text(
-                                text = "${quantity}", fontSize = 20.sp,
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
+                            Text(text = "$quantity", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                             IconButton(onClick = {
-                                if (quantity < prod.quantity.toInt()) {
-                                    quantity++
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        "Đã đạt giới hạn số lượng sản phẩm tối đa là  ${productQuantity}",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-
+                                if (quantity < prod.quantity.toInt()) quantity++
                             }) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = "",
-                                    modifier = Modifier.size(30.dp)
-                                )
+                                Icon(imageVector = Icons.Default.AddCircle, contentDescription = "Tăng số lượng")
                             }
-
-                            Text("Tổng giá là ${quantity * prod.price.toInt()}")
                         }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = "Tổng giá: ${quantity * prod.price.toInt()} VNĐ", fontWeight = FontWeight.Bold)
                     }
                 }
             },
             confirmButton = {
                 Button(onClick = {
                     if (name.isBlank() || phone.isBlank() || address.isBlank()) {
-                        Toast.makeText(
-                            context,
-                            "vui lòng điền đầy đủ thông tin",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(context, "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show()
+                    } else if (quantity < 1) {
+                        Toast.makeText(context, "Bạn phải mua ít nhất 1 sản phẩm", Toast.LENGTH_SHORT).show()
                     } else {
-                        if (quantity == 0) {
-                            Toast.makeText(
-                                context,
-                                "Bạn phải mua ít nhất 1 sản phẩm",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
-                            OderPro(
-                                name,
-                                phone,
-                                proid,
-                                quantity,
-                                quantity * price,
-                                address,
-                                0,
-                                formattedDateTime,
-                                email,
-                                oderViewModel
-                            )
+                        product?.let {
+                            OderPro(name, phone, it.id, quantity, quantity * it.price.toInt(), address, 0, formattedDateTime, email, oderViewModel)
                         }
+                        onDismiss()
                     }
-
-                    onDismiss()
                 }) {
-                    Text(text = "OK")
+                    Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = "Đặt hàng")
                 }
             },
             dismissButton = {
-                Button(onClick = onDismiss) {
+                OutlinedButton(onClick = onDismiss) {
+                    Icon(imageVector = Icons.Default.Close, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(text = "Hủy")
                 }
             }
         )
     }
 }
+
 
 
 fun OderPro(

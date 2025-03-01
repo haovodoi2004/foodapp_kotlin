@@ -6,8 +6,11 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -18,18 +21,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -56,6 +66,9 @@ import coil.compose.AsyncImage
 import com.example.app_food.R
 import com.example.app_food.ViewModel.ProViewModel
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.style.TextAlign
 import com.example.app_food.Model.Product
 import com.example.app_food.Model.Protype
 import com.example.app_food.ViewModel.ProtypeViewModel
@@ -66,7 +79,7 @@ import com.example.app_food.ViewModel.ProtypeViewModel
 fun productDetailAdmin(
     produc: String,
     navController: NavController,
-    viewModel: ProViewModel ,
+    viewModel: ProViewModel,
     protypeViewModel: ProtypeViewModel
 ) {
     val product by viewModel.product.observeAsState()
@@ -75,24 +88,22 @@ fun productDetailAdmin(
     val protypelist by protypeViewModel.protypeItems.observeAsState(initial = emptyList())
 
     LaunchedEffect(produc) {
-
         viewModel.getProById(produc)
-        Toast.makeText(context, "id sản phẩm là ${produc}", Toast.LENGTH_SHORT).show()
     }
 
     LaunchedEffect(protypelist) {
-        if(protypelist.isEmpty()){
+        if (protypelist.isEmpty()) {
             protypeViewModel.fetchProtype()
         }
     }
+
     product?.let { prod ->
         Box(modifier = Modifier.fillMaxSize()) {
-            // Box đầu tiên (chiếm 50% chiều cao)
+            // Hình ảnh sản phẩm với hiệu ứng Gradient
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.4f) // Chiếm 50% chiều cao
-                    .background(Color.Black)
+                    .fillMaxHeight(0.4f)
             ) {
                 AsyncImage(
                     model = prod.avatar,
@@ -100,77 +111,100 @@ fun productDetailAdmin(
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.5f)),
+                                startY = 100f
+                            )
+                        )
+                )
                 IconButton(
                     onClick = { navController.popBackStack() },
                     modifier = Modifier
-                        .align(Alignment.TopStart) // Căn nút ở góc trên bên trái
-                        .padding(16.dp) // Khoảng cách từ cạnh
-                        .background(
-                            color = Color.Black.copy(alpha = 0.2f), // Nền mờ
-                            shape = CircleShape
-                        )
+                        .padding(16.dp)
+                        .background(Color.Black.copy(alpha = 0.2f), CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
                         tint = Color.White,
                         modifier = Modifier.size(40.dp)
-
                     )
                 }
             }
 
-            // Box thứ hai (chiếm 60% chiều cao, đè lên Box đầu tiên)
+            // Thông tin sản phẩm
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.65f) // Chiếm 60% chiều cao
-                    .align(Alignment.BottomCenter) // Đặt ở phía dưới màn hình
-                    .zIndex(0.5f) // Đặt trên Box đầu tiên
+                    .fillMaxHeight(0.65f)
+                    .align(Alignment.BottomCenter)
                     .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                     .background(Color.White)
+                    .padding(16.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
+                Column {
                     Text(
                         text = prod.name,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
                     )
-                    Text(
-                        text = "Price: $${prod.price}",
-                        fontSize = 18.sp,
-                        color = Color.Green
-                    )
-                    Text(
-                        text = prod.infor,
-                        fontSize = 16.sp,
-                        color = Color.Gray
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Giá: $${prod.price}",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFFF55928)
+                        )
+                        Text(
+                            text = "Số lượng: ${prod.quantity}",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFFF55928)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Column(
+                        modifier = Modifier.verticalScroll(rememberScrollState())
+                    ) {
+                        Text(
+                            text = prod.infor,
+                            fontSize = 16.sp,
+                            color = Color.DarkGray,
+                            textAlign = TextAlign.Justify
+                        )
+                    }
                 }
-                Button(
-                    onClick = { show = true },
-                    modifier = Modifier
-                        .fillMaxWidth(0.7f)
-                        .align(Alignment.BottomCenter),
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.White,
-                        containerColor = Color(0xFFF55928)
-                    )
-                ) {
-                    Text(text = "Sửa thông tin")
-                }
+            }
+            // Floating Action Button (FAB) để sửa sản phẩm
+            FloatingActionButton(
+                onClick = { show = true },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
+                containerColor = Color(0xFFF55928)
+            ) {
+                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit", tint = Color.White)
             }
         }
     } ?: run {
-        Text("Loading product details...", Modifier.padding(16.dp))
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
     }
+
     if (show) {
-        product?.let { productEdit(onDismiss = { show = false },viewModel, product!!,protypelist) }
+        product?.let { productEdit(onDismiss = { show = false }, viewModel, product!!, protypelist) }
     }
 }
+
 
 
 
@@ -280,6 +314,7 @@ fun productEdit(onDismiss: () -> Unit, proViewModel: ProViewModel,product: Produ
                 val product = Product(product.id,name,price,avatar,infor,selectedCategory,quantity,0)
                 onDismiss()
                 proViewModel.updateProduct(product.id,product)
+                proViewModel.getProById(product.id)
             }) {
                 Text(text = "Ok")
             }

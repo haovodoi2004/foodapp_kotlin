@@ -11,8 +11,21 @@ import kotlinx.coroutines.launch
 import retrofit2.Response
 
 class OderViewModel() : ViewModel(){
-    val dataoder : MutableLiveData<Response<Oder>> = MutableLiveData()
+    val dataoder : MutableLiveData<Oder> = MutableLiveData()
     val oder = MutableLiveData<List<Oder>>()
+
+    fun getOderById(id : String){
+        viewModelScope.launch {
+            val respone = RetrofitInstance.api.getoderbyid(id)
+            try {
+                if(respone.isSuccessful){
+                    dataoder.value=respone.body()
+                }
+            }catch (ex:Exception){
+                ex.printStackTrace()
+            }
+        }
+    }
 
     fun updateoder(id : String , oder: Oder){
         viewModelScope.launch {
@@ -47,7 +60,7 @@ class OderViewModel() : ViewModel(){
             try{
                 val repone=RetrofitInstance.api.addoder(oder)
                 fetchoder()
-                dataoder.value=repone
+                dataoder.value=repone.body()
             }catch (e :Exception){
                 e.printStackTrace()
             }

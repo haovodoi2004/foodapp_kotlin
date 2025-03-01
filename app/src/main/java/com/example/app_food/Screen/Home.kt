@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,6 +27,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -34,6 +37,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -87,8 +92,101 @@ fun Home(navController: NavController,proViewModel: ProViewModel,protypeViewMode
         item { AutoImage() }
         item { ProtypeList(navController,protypeViewModel,proViewModel,email) }
         item { Even() }
+        item { Productlist1(navController,proViewModel,email) }
     }
 }
+
+@Composable
+fun Productlist1(navController: NavController, proViewModel: ProViewModel, email: String) {
+    val produclist by proViewModel.Product1.observeAsState(initial = emptyList())
+
+    // Lọc danh sách trước khi sử dụng
+    val filteredList = produclist.filter { it.status.toInt() == 0 }
+
+    // Chỉ fetch dữ liệu nếu danh sách trống
+    LaunchedEffect(produclist) {
+        if (produclist.isEmpty()) {
+            proViewModel.fetchProduct1()
+        }
+    }
+
+    Text(
+        text = "Bạn ăn gì hôm nay",
+        fontSize = 20.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(top = 16.dp, start = 8.dp)
+    )
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(max = LocalConfiguration.current.screenHeightDp.dp * 1f)
+            .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Sử dụng filteredList để đảm bảo chỉ có sản phẩm hợp lệ
+        itemsIndexed(filteredList.chunked(2)) { _, rowItems ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                rowItems.forEach { product ->
+                    ProductItem1(product, navController, email)
+                }
+                // Nếu chỉ có 1 sản phẩm, thêm Spacer để căn giữa
+                if (rowItems.size == 1) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}
+
+
+
+@Composable
+fun ProductItem1(product: Product, navController: NavController, email: String) {
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+
+    Card(
+        modifier = Modifier
+            .width(screenWidth * 0.45f) // 45% chiều rộng màn hình để 2 sản phẩm nằm cạnh nhau
+            .padding(4.dp),
+        elevation = CardDefaults.elevatedCardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        onClick = {
+            navController.navigate("productDetail/${product.id}/${email}")
+        }
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AsyncImage(
+                model = product.avatar,
+                contentDescription = product.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = product.name ?: "Unknown", fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(text = "$ ${product.price}", fontSize = 14.sp, color = Color.Gray)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Nút "Mua hàng"
+            Button(
+                onClick = {navController.navigate("productDetail/${product.id}/${email}") },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Blue),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Mua hàng", color = Color.White)
+            }
+        }
+    }
+}
+
 
 @Composable
 fun NewItem(new: New?) {
@@ -177,6 +275,7 @@ fun Even(viewModel: NewViewModel = NewViewModel()) {
 fun ProtypeList(navController: NavController, viewModel: ProtypeViewModel, view:ProViewModel,email: String) {
     // Khởi chạy lấy danh sách các loại sản phẩm
     val protypeItems by viewModel.protypeItems.observeAsState(initial = emptyList())
+    var name by remember { mutableStateOf("Mỳ") }
 
     LaunchedEffect(Unit) {
         if (protypeItems.isEmpty()) {
@@ -185,14 +284,27 @@ fun ProtypeList(navController: NavController, viewModel: ProtypeViewModel, view:
     }
     var selectedCategory by remember { mutableStateOf<Protype?>(null) }
     // Hiển thị các loại sản phẩm trong LazyRow
+    LaunchedEffect(protypeItems) {
+        if (protypeItems.isNotEmpty() && selectedCategory == null) {
+            val defaultCategory = protypeItems.find { it.name == "Mỳ" && it.status.toInt() == 0 }
+            if (defaultCategory != null) {
+                selectedCategory = defaultCategory
+                name = defaultCategory.name
+                view.getProBycategoryy(name)
+            }
+        }
+    }
     if (protypeItems.isEmpty()) {
         Text("No categories available", modifier = Modifier.padding(16.dp))
     } else {
         LazyRow {
             items(protypeItems) { protypeItem ->
-                ProtypeItem(protypeItem) {
-                    selectedCategory = protypeItem
-                    view.getProBycategoryy(protypeItem.name)
+                if(protypeItem.status.toInt()==0) {
+                    ProtypeItem(protypeItem) {
+                        selectedCategory = protypeItem
+                        name=protypeItem.name
+                        view.getProBycategoryy(name)
+                    }
                 }
             }
         }
@@ -206,13 +318,19 @@ fun ProtypeList(navController: NavController, viewModel: ProtypeViewModel, view:
 fun ProductList(navController: NavController,view: ProViewModel,email: String) {
     // Theo dõi dữ liệu từ view.proo và hiển thị danh sách sản phẩm
     val proList by view.Product.observeAsState(initial =emptyList())
+    val isListEmpty = proList.isEmpty() || proList.all { it.status.toInt() != 0 }
         LazyRow(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(proList) { product ->
-                ProductItem(product,navController,email)
+
+                    ProductItem(product, navController, email)
+
             }
         }
+    if(isListEmpty){
+        Text(text = "No products available", modifier = Modifier.padding(16.dp))
+    }
 }
 
 @Composable
@@ -259,11 +377,57 @@ fun ProductItem(product: Product,navController: NavController,email: String) {
                 contentScale = ContentScale.Crop  // Để ảnh cắt vừa khung
 
             )
-            Text(text = product.name ?: "Unknown", fontSize = 20.sp)
-            Text(text = "$ ${product.price.toString()}")
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text(
+                    text = product.name ?: "Unknown",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "$${product.price}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF388E3C) // Xanh lá cây tạo điểm nhấn
+                )
+            }
         }
     }
 }
+@Composable
+fun ProductItem2(product: Product, navController: NavController, email: String) {
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    Card(
+        modifier = Modifier
+            .width(screenWidth * 1f)
+            .height(screenHeight*0.1f)
+            .padding(4.dp),
+        elevation = CardDefaults.elevatedCardElevation(6.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        onClick = {
+            navController.navigate("productDetail/${product.id}/$email")
+        }
+    ) {
+        Row(modifier = Modifier.fillMaxSize()) {
+            AsyncImage(
+                model = product.avatar,
+                contentDescription = product.name,
+                modifier = Modifier
+                    .width(screenWidth*0.3f)
+                    .fillMaxHeight(),
+                contentScale = ContentScale.Crop
+            )
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text(text = product.name ?: "Unknown", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(text = "$${product.price}", fontSize = 16.sp, color = Color.Green)
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun AutoImage(modifier: Modifier = Modifier) {
@@ -389,14 +553,14 @@ fun Search(viewModel: ProViewModel,navController: NavController,email: String){
     var text by remember { mutableStateOf("") }
     var active by remember { mutableStateOf(false) }
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp // Lấy chiều cao màn hình
-    val searchResults by viewModel.Product.observeAsState(emptyList()) // Theo dõi danh sách sản phẩm từ ViewModel
+    val searchResults by viewModel.Product2.observeAsState(emptyList()) // Theo dõi danh sách sản phẩm từ ViewModel
         SearchBar(modifier = Modifier
             .fillMaxWidth()
             .heightIn(max = screenHeight * 1f),query = text,
             onQueryChange = {
                 text = it
                 if (text.isNotEmpty()) {
-                    viewModel.getprobyname(text) // Gọi API khi có thay đổi
+                    viewModel.gettprobyname(text) // Gọi API khi có thay đổi
                 }
             },
             onSearch ={
@@ -433,7 +597,7 @@ fun Search(viewModel: ProViewModel,navController: NavController,email: String){
                         .padding(8.dp)
                 ) {
                     items(searchResults) { product ->
-                        ProductItem(product, navController, email)
+                        ProductItem2(product, navController, email)
                     }
                 }
             } else if (text.isNotEmpty()) {

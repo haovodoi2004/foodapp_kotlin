@@ -43,12 +43,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.app_food.Bottombar.OderDetail
 import com.example.app_food.Bottombar.userDetail
 import com.example.app_food.Model.User
 import com.example.app_food.R
 import com.example.app_food.Screen.Sigin
 import com.example.app_food.ScreenAdmin.ChangePassword
-import com.example.app_food.ScreenAdmin.Home
 import com.example.app_food.ScreenAdmin.New
 import com.example.app_food.ScreenAdmin.Newdetail
 import com.example.app_food.ScreenAdmin.Product
@@ -65,8 +65,6 @@ import com.example.app_food.ViewModel.ProViewModel
 import com.example.app_food.ViewModel.ProtypeViewModel
 import com.example.app_food.ViewModel.UserViewModel
 import kotlinx.coroutines.launch
-
-
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "NewApi")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,16 +94,16 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
                         Text(text = "Admin", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 25.sp)
                     }
                 }
-                NavigationDrawerItem(label = { Text(text = "logout" , color = Color.Black) },
-                    selected = false,
-                    icon = { Icon(painter = painterResource(R.drawable.logout), contentDescription = "", tint = Color.Black,modifier = Modifier.size(30.dp))},
-                    onClick = {
-                        coroutineScope.launch {
-                            drawerState.close()
-                            // Điều hướng về màn hình đăng nhập và xóa stack
-                           onClick()
-                        }
-                    })
+//                NavigationDrawerItem(label = { Text(text = "logout" , color = Color.Black) },
+//                    selected = false,
+//                    icon = { Icon(painter = painterResource(R.drawable.logout), contentDescription = "", tint = Color.Black,modifier = Modifier.size(30.dp))},
+//                    onClick = {
+//                        coroutineScope.launch {
+//                            drawerState.close()
+//                            // Điều hướng về màn hình đăng nhập và xóa stack
+//                           onClick()
+//                        }
+//                    })
 
                 NavigationDrawerItem(label = { Text(text = "ProductType" , color = Color.Black) },
                     selected = false,
@@ -127,18 +125,6 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
                             drawerState.close()
                         }
                         navigationController.navigate(Screens.Turnover.screen){
-                            popUpTo(0)
-                        }
-                    })
-
-                NavigationDrawerItem(label = { Text(text = "Setting" , color = Color.Black) },
-                    selected = false,
-                    icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "", tint = Color.Black, modifier = Modifier.size(30.dp))},
-                    onClick = {
-                        coroutineScope.launch {
-                            drawerState.close()
-                        }
-                        navigationController.navigate(Screens.Setting.screen){
                             popUpTo(0)
                         }
                     })
@@ -190,6 +176,18 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
                             popUpTo(0)
                         }
                     })
+
+                NavigationDrawerItem(label = { Text(text = "Setting" , color = Color.Black) },
+                    selected = false,
+                    icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "", tint = Color.Black, modifier = Modifier.size(30.dp))},
+                    onClick = {
+                        coroutineScope.launch {
+                            drawerState.close()
+                        }
+                        navigationController.navigate(Screens.Setting.screen){
+                            popUpTo(0)
+                        }
+                    })
             }
         }
     ) {
@@ -222,7 +220,7 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
                     navigationController.navigate("productDetail/$productId")}, productViewModel = ProViewModel, protypeViewModel = ProtypeViewModel)
             }
                 composable(Screens.User.screen) { Mainuser(userViewModel)  }
-                composable(Screens.Oder.screen) { Main(OderViewModel,ProViewModel)  }
+                composable(Screens.Oder.screen) { Main(navigationController,OderViewModel,ProViewModel,email)  }
             composable(
                 Screens.Setting.screen
             ) {
@@ -238,6 +236,18 @@ fun LearnNavDrawer(userViewModel: UserViewModel=UserViewModel(),ProViewModel: Pr
             ) { backStackEntry ->
                 val productId = backStackEntry.arguments?.getString("productId") ?: ""
                 productDetailAdmin(productId,navigationController, protypeViewModel = ProtypeViewModel, viewModel = ProViewModel)
+            }
+
+            composable("oderdetail/{oderId}/{email}",
+                arguments = listOf(
+                    navArgument("oderId") { type = NavType.StringType },
+                    navArgument("email") { type = NavType.StringType }
+                )
+            ){
+                    backStackEntry ->
+                val oderId = backStackEntry.arguments?.getString("oderId")
+                val email = backStackEntry.arguments?.getString("email")
+                OderDetail(navigationController, oderViewModel = OderViewModel,ProViewModel,oderId!!,email!!)
             }
 
             composable(

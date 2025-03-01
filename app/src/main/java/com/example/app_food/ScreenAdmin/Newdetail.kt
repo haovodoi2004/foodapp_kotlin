@@ -1,5 +1,6 @@
 package com.example.app_food.ScreenAdmin
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -11,8 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -52,16 +55,44 @@ import com.example.app_food.ViewModel.NewViewModel
 @Composable
 fun Newdetail(newid: String, navController: NavController, viewModel: NewViewModel) {
     val newitem by viewModel.neww.observeAsState()
-    var show by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     LaunchedEffect(newid) {
         viewModel.getnewbyid(newid)
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        // Nút quay lại
-
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF5F5F5)) // Màu nền nhẹ nhàng
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Header với nút quay lại
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Quay lại",
+                    tint = Color.Black
+                )
+            }
+            Text(
+                text = "Chi Tiết Tin Tức",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+        }
 
         if (newitem == null) {
             // Hiển thị trạng thái đang tải dữ liệu
@@ -69,124 +100,142 @@ fun Newdetail(newid: String, navController: NavController, viewModel: NewViewMod
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Đang tải dữ liệu...", style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = "Đang tải dữ liệu...",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                    color = Color.Gray
+                )
             }
         } else {
             newitem?.let { item ->
-                Column(
+                Card(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(1.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(6.dp)
                 ) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(1.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        elevation = CardDefaults.cardElevation(4.dp)
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                            .verticalScroll(rememberScrollState()) // Kéo trượt khi nội dung dài
                     ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
+                        // Ảnh bài viết
+                        AsyncImage(
+                            model = item.avatar ?: "default_image_url",
+                            contentDescription = "Ảnh",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(220.dp)
+                                .clip(RoundedCornerShape(12.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Tiêu đề bài viết
+                        Text(
+                            text = item.title ?: "Không có tiêu đề",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Nội dung bài viết
+                        Text(
+                            text = item.content ?: "Không có nội dung",
+                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
+                            textAlign = TextAlign.Justify,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Nút sửa bài viết
+                        Button(
+                            onClick = { showDialog = true },
+                            modifier = Modifier.align(Alignment.End),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7))
                         ) {
-                            Box(modifier = Modifier.fillMaxSize()) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    IconButton(
-                                        onClick = { navController.popBackStack() },
-                                        modifier = Modifier
-                                            .padding(top = 10.dp)
-
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.ArrowBack,
-                                            contentDescription = "Quay lại",
-                                            tint = Color.Black,
-                                            modifier = Modifier.size(40.dp)
-                                        )
-                                    }
-                                    Text(
-                                        text = item.title ?: "Không có tiêu đề",
-                                        style = MaterialTheme.typography.titleLarge,
-                                        fontWeight = FontWeight.Bold,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
-                                // Tiêu đề
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                // Ảnh
-                                AsyncImage(
-                                    model = item.avatar ?: "default_image_url",
-                                    contentDescription = "Ảnh",
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(200.dp)
-                                        .clip(RoundedCornerShape(8.dp)),
-                                    contentScale = ContentScale.Crop
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                // Nội dung
-                                Text(
-                                    text = item.content ?: "Không có nội dung",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Justify
-                                )
-
-                                IconButton(
-                                    onClick = {
-                                        show = true
-                                    },
-                                    modifier = Modifier.background(
-                                        color = Color(0xFF673AB7),
-                                        shape = CircleShape
-                                    )
-                                        .size(50.dp).align(Alignment.BottomEnd)
-                                ) {
-                                    Icon(imageVector = Icons.Default.Add, contentDescription = "")
-                                }
-                            }
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Chỉnh sửa",
+                                tint = Color.White
+                            )
+                            Spacer(modifier = Modifier.size(8.dp))
+                            Text(text = "Chỉnh sửa")
                         }
                     }
                 }
             }
-            if (show) {
-                updateNew(onDismiss = { show = false }, newitem!!, viewModel, newid)
+
+            if (showDialog) {
+                updateNew(onDismiss = { showDialog = false }, newitem!!, viewModel, newid)
             }
         }
     }
 }
 
 @Composable
-fun updateNew(onDismiss : ()->Unit,new : New,viewModel: NewViewModel,id : String ) {
+fun updateNew(onDismiss: () -> Unit, new: New, viewModel: NewViewModel, id: String) {
+    Log.d("fkhudshfui",new.title + new.avatar+new.content)
     var title by remember { mutableStateOf(new.title) }
     var img by remember { mutableStateOf(new.avatar) }
     var content by remember { mutableStateOf(new.content) }
-    AlertDialog(onDismissRequest = {onDismiss()},
-        title = { Text(text = "Sửa thông tin", textAlign = TextAlign.Center) },
+
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = {
+            Text(
+                text = "Sửa bài viết",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
         text = {
-            Box(modifier = Modifier.fillMaxWidth()){
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    OutlinedTextField(value =title , onValueChange = {title=it}, label = { Text(text = "Nhập title") })
-                    OutlinedTextField(value =img , onValueChange = {img=it}, label = { Text(text = "Nhập link ảnh") })
-                    OutlinedTextField(value =content , onValueChange = {content=it}, label = { Text(text = "Nhập content") })
-                }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text(text = "Nhập tiêu đề") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = img,
+                    onValueChange = { img = it },
+                    label = { Text(text = "Nhập link ảnh") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = content,
+                    onValueChange = { content = it },
+                    label = { Text(text = "Nhập nội dung") },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         },
         confirmButton = {
-            Button(onClick = {var new = New(id,title,content,img)
-                viewModel.updatenew(id,new)
-                onDismiss()}) {
-                Text(text = "Ok")
+            Button(
+                onClick = {
+                    val updatedNew = New(id, title, content, img)
+                    viewModel.updatenew(id, updatedNew)
+                    onDismiss()
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7))
+            ) {
+                Text(text = "Lưu", color = Color.White)
             }
-
         },
         dismissButton = {
-            Button(onClick = {onDismiss()})  {
-                Text(text = "Hủy")
+            Button(
+                onClick = { onDismiss() },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+            ) {
+                Text(text = "Hủy", color = Color.White)
             }
-        })
+        }
+    )
 }

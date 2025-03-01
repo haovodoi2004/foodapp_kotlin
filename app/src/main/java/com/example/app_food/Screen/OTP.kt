@@ -1,6 +1,7 @@
 package com.example.app_food.Screen
 
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -76,40 +77,6 @@ fun OTP(navController: NavController, forgotPasswordViewModel: ForgotPasswordVie
                 )
             )
 
-//            Spacer(modifier = Modifier.height(16.dp))
-//
-//            OutlinedTextField(
-//                value = newPassword,
-//                onValueChange = { newPassword = it },
-//                label = { Text("Mật khẩu mới") },
-//                singleLine = true,
-//                modifier = Modifier.fillMaxWidth(),
-//                colors = TextFieldDefaults.colors(
-//                    focusedContainerColor = Color.Transparent,
-//                    unfocusedContainerColor = Color.Transparent,
-//                    focusedIndicatorColor = Color(0xFF3E4A59),
-//                    unfocusedIndicatorColor = Color(0xFFB0BEC5),
-//                    cursorColor = Color(0xFF3E4A59)
-//                )
-//            )
-//
-//            Spacer(modifier = Modifier.height(16.dp))
-//
-//            OutlinedTextField(
-//                value = confirmPassword,
-//                onValueChange = { confirmPassword = it },
-//                label = { Text("Xác nhận mật khẩu mới") },
-//                singleLine = true,
-//                modifier = Modifier.fillMaxWidth(),
-//                colors = TextFieldDefaults.colors(
-//                    focusedContainerColor = Color.Transparent,
-//                    unfocusedContainerColor = Color.Transparent,
-//                    focusedIndicatorColor = Color(0xFF3E4A59),
-//                    unfocusedIndicatorColor = Color(0xFFB0BEC5),
-//                    cursorColor = Color(0xFF3E4A59)
-//                )
-//            )
-
             if (showError) {
                 Text(
                     text = errorMessage,
@@ -133,16 +100,10 @@ fun OTP(navController: NavController, forgotPasswordViewModel: ForgotPasswordVie
             Button(
                 onClick = {
                     if (otp.isNotEmpty()) {
-                        if (newPassword == confirmPassword) {
-                            forgotPasswordViewModel.verifyOTP(email, otp)
-                            navController.navigate("resetpassword/$email")
-                        } else {
-                            showError = true
-                            errorMessage = "Mật khẩu và xác nhận mật khẩu không khớp."
-                        }
+                        forgotPasswordViewModel.verifyOTP(email, otp)  // Kiểm tra OTP
                     } else {
                         showError = true
-                        errorMessage = "Vui lòng điền đầy đủ thông tin."
+                        errorMessage = "Vui lòng nhập mã OTP."
                     }
                 },
                 modifier = Modifier
@@ -157,6 +118,14 @@ fun OTP(navController: NavController, forgotPasswordViewModel: ForgotPasswordVie
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
+            }
+
+// Chuyển màn nếu OTP đúng
+            LaunchedEffect(otpStatusMessage) {
+                Log.d("OTPppppp", otpStatusMessage)
+                if (otpStatusMessage == "Mã OTP hợp lệ. Bạn có thể tiếp tục đổi mật khẩu.") {  // ✅ So sánh chính xác
+                    navController.navigate("resetpassword/$email")
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

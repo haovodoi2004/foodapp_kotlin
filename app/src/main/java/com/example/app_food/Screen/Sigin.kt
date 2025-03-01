@@ -12,9 +12,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -36,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import com.example.app_food.ViewModel.UserViewModel
@@ -49,6 +55,7 @@ fun Sigin(onSignupClick: () -> Unit,navController: NavController,userViewModel: 
     val loginStatus by userViewModel.loginStatus.observeAsState()
     val loginErrorMessage by userViewModel.loginErrorMessage.observeAsState()
     val user by userViewModel.userr.observeAsState()
+    var isPasswordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect (loginStatus) {
         loginStatus?.let { isSuccess ->
@@ -114,8 +121,14 @@ fun Sigin(onSignupClick: () -> Unit,navController: NavController,userViewModel: 
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                val icon = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                    Icon(imageVector = icon, contentDescription = "Toggle Password Visibility")
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         )
 

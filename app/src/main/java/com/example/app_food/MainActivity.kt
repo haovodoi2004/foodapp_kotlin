@@ -27,8 +27,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.app_food.Screen.Home
 import com.example.app_food.Screen.Sigin
-import com.example.app_food.Screen.Sigup
+import com.example.app_food.Screen.SignupScreen
 import com.example.app_food.Bottombar.MainScreen
+import com.example.app_food.Bottombar.OderDetail
 import com.example.app_food.Bottombar.Setting
 import com.example.app_food.Bottombar.userDetail
 import com.example.app_food.BottombarAdmin.LearnNavDrawer
@@ -36,6 +37,7 @@ import com.example.app_food.Screen.OTP
 import com.example.app_food.Screen.ProductDetail
 import com.example.app_food.Screen.ResetPassword
 import com.example.app_food.Screen.SendOTPScreen
+import com.example.app_food.ScreenAdmin.ChangePassword
 import com.example.app_food.ViewModel.ForgotPasswordViewModel
 import com.example.app_food.ViewModel.OderViewModel
 import com.example.app_food.ViewModel.ProViewModel
@@ -64,7 +66,26 @@ class MainActivity : ComponentActivity() {
                 },navController)
             }
             composable("signup"){
-               Sigup(navController)
+                SignupScreen(navController,userViewModel)
+            }
+
+            composable(route = "changePassword/{email}",
+                arguments = listOf(navArgument("email") { type = NavType.StringType })) {
+                    backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("email")
+                ChangePassword(navController,userViewModel,userId!!)
+            }
+
+            composable("oderdetail/{oderId}/{email}",
+                    arguments = listOf(
+                    navArgument("oderId") { type = NavType.StringType },
+                navArgument("email") { type = NavType.StringType }
+            )
+                ){
+                    backStackEntry ->
+                val oderId = backStackEntry.arguments?.getString("oderId")
+                val email = backStackEntry.arguments?.getString("email")
+                OderDetail(navController,oderViewModel,proViewModel,oderId!!,email!!)
             }
             composable("home/{email}",
                 arguments = listOf(navArgument("email") { type = NavType.StringType })

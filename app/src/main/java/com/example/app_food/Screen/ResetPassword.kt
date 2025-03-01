@@ -1,5 +1,6 @@
 package com.example.app_food.Screen
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -135,10 +136,25 @@ fun ResetPassword(navController: NavController, forgotPasswordViewModel: ForgotP
 
             Button(
                 onClick = {
-                    user?.let {us->
-                        val hashedNewPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt())
-                        val use = User(us.id,us.email,hashedNewPassword,us.name,us.address,us.sex,us.status)
-                        userViewModel.updateUser(us.id!!,use)
+                    if(newPassword==confirmPassword) {
+                        user?.let { us ->
+                            val hashedNewPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt())
+                            val use = User(
+                                us.id,
+                                us.email,
+                                hashedNewPassword,
+                                us.name,
+                                us.address,
+                                us.sex,
+                                us.status
+                            )
+                            userViewModel.updateUser(us.id!!, use)
+                            navController.navigate("signin")
+                            Toast.makeText(navController.context, "Đổi mật khẩu thành công", Toast.LENGTH_SHORT).show()
+                        }
+                    }else{
+                        showError = true
+                        errorMessage = "Mật khẩu không khớp."
                     }
                 },
                 modifier = Modifier
@@ -155,15 +171,15 @@ fun ResetPassword(navController: NavController, forgotPasswordViewModel: ForgotP
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            TextButton(onClick = { navController.popBackStack() }) {
-                Text(
-                    text = "Quay lại",
-                    color = Color(0xFF3E4A59),
-                    fontSize = 14.sp
-                )
-            }
+//            Spacer(modifier = Modifier.height(16.dp))
+//
+//            TextButton(onClick = { navController.popBackStack() }) {
+//                Text(
+//                    text = "Quay lại",
+//                    color = Color(0xFF3E4A59),
+//                    fontSize = 14.sp
+//                )
+//            }
         }
     }
 }

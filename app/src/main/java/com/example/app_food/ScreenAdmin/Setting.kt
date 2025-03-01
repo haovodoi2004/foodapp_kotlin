@@ -50,110 +50,110 @@ fun Setting(userViewModel: UserViewModel,email: String,navController: NavControl
             userViewModel.getuser(email)
         }
 
-                Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-                // User Info Card
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.SpaceBetween,
+        Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            // User Info Card
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween,
 
-                    ) {
-                        Card(
-                            onClick = {
-                                navController.navigate("userDetail/$email")
-                            },
+                ) {
+                Card(
+                    onClick = {
+                        navController.navigate("userDetail/$email")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    shape = MaterialTheme.shapes.medium,
+                    elevation = CardDefaults.elevatedCardElevation(8.dp)
+                ) {
+                    user?.let { us ->
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp),
-                            shape = MaterialTheme.shapes.medium,
-                            elevation = CardDefaults.elevatedCardElevation(8.dp)
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            user?.let { us ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.user),
-                                        contentDescription = "User Avatar",
-                                        modifier = Modifier
-                                            .size(60.dp)
-                                            .padding(end = 16.dp)
-                                    )
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = us.name,
-                                            style = MaterialTheme.typography.titleMedium,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                        Text(
-                                            text = us.email,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                    Image(
-                                        painter = painterResource(R.drawable.go),
-                                        contentDescription = "Navigate Icon",
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                }
-                            }
-                        }
-
-
-                        // Change Password Button
-                        Button(
-                            onClick = {
-                                navController.navigate("changePassword/${email}")
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-                            modifier = Modifier
-                                .fillMaxWidth(0.8f)
-                                .padding(vertical = 8.dp),
-                            shape = MaterialTheme.shapes.large
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Lock,
-                                    contentDescription = "Change Password Icon",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
+                            Image(
+                                painter = painterResource(R.drawable.user),
+                                contentDescription = "User Avatar",
+                                modifier = Modifier
+                                    .size(60.dp)
+                                    .padding(end = 16.dp)
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Đổi mật khẩu",
-                                    color = Color.White,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Medium
+                                    text = us.name,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = us.email,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
+                            Image(
+                                painter = painterResource(R.drawable.go),
+                                contentDescription = "Navigate Icon",
+                                modifier = Modifier.size(24.dp)
+                            )
                         }
                     }
+                }
 
 
-                // Logout Button
+                // Change Password Button
                 Button(
                     onClick = {
-                        onClick()
+                        navController.navigate("changePassword/${email}")
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                     modifier = Modifier
-                        .align(alignment = Alignment.BottomCenter)
-                        .padding(16.dp)
-                        .fillMaxWidth(0.6f),
-                    shape = MaterialTheme.shapes.medium
+                        .fillMaxWidth(0.8f)
+                        .padding(vertical = 8.dp),
+                    shape = MaterialTheme.shapes.large
                 ) {
-                    Text(
-                        text = "Đăng xuất",
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.labelLarge
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Lock,
+                            contentDescription = "Change Password Icon",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Đổi mật khẩu",
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             }
+
+
+            // Logout Button
+            Button(
+                onClick = {
+                    onClick()
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                modifier = Modifier
+                    .align(alignment = Alignment.BottomCenter)
+                    .padding(16.dp)
+                    .fillMaxWidth(0.6f),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Text(
+                    text = "Đăng xuất",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
         }
+    }
     }
 

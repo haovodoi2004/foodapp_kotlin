@@ -198,8 +198,9 @@ fun updateDialog(onDismiss: () -> Unit, user: User, userViewModel: UserViewModel
                     label = { Text("Nhập địa chỉ") },
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
                 )
+                Text(text = "Chọn giới tính")
                 Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.Start,
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {

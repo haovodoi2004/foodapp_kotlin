@@ -97,6 +97,7 @@ fun ContentScreen(
             modifier = modifier
         )
         2 -> OderScreen(
+            navController = navController,
             viewModel = viewModel,
             email = email,
             proViewModel = proViewModel,

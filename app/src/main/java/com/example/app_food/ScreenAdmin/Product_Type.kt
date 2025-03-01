@@ -93,7 +93,7 @@ fun Productype(viewModel: ProtypeViewModel){
 
 @Composable
 fun updateDialog(show : Boolean , onDissmiss: () -> Unit , protye: Protype , protypeViewModel: ProtypeViewModel){
-   var name by remember { mutableStateOf("") }
+   var name by remember { mutableStateOf(protye.name) }
     AlertDialog(onDismissRequest = onDissmiss,
         title = { Text(text = "Sửa thông tin") },
         text = {
@@ -106,7 +106,7 @@ fun updateDialog(show : Boolean , onDissmiss: () -> Unit , protye: Protype , pro
             Button(onClick = {
                 val pro = Protype(name,0)
                 protypeViewModel.updateprotype(protye.name, pro)
-
+                onDissmiss()
             }) {
                 Text(text = "Ok")
             }

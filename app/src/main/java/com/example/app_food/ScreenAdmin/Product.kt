@@ -88,45 +88,21 @@ fun Product(
     var selectedId by remember { mutableStateOf("") }
     var show by remember { mutableStateOf(false) }
     var visibleProducts by remember { mutableStateOf(emptyList<Product>()) }
-    var produc = Product(
-        id = "",
-        name = "",
-        price = 0,
-        avatar = "",
-        infor = "",
-        category = "",
-        quantity = 0,
-        status = 0
-    )
-    // Fetch dữ liệu khi cần
-//    LaunchedEffect(listProduct) {
-//        if (listProduct.isEmpty()) productViewModel.fetchProduct()
-//        if (listProtype.isEmpty()) protypeViewModel.fetchProtype()
-//    }
-//    LaunchedEffect(listProduct) {
-//        filteredProducts = if (selectedCategory.isEmpty()) {
-//            productViewModel.fetchProduct()
-//            listProduct
-//        } else {
-//            listProduct.filter { it.category == selectedCategory }
-//        }
-//    }
-//
-//    // Lọc danh sách sản phẩm theo danh mục
-//    LaunchedEffect(selectedCategory, listProduct) {
-//        filteredProducts = if (selectedCategory.isEmpty()) {
-//            listProduct
-//        } else {
-//            listProduct.filter { it.category == selectedCategory }
-//        }
-//    }
+    var produc by remember { mutableStateOf(Product("", "", 0, "", "", "", 0, 0)) }
 
-    LaunchedEffect(Unit) {
+
+    LaunchedEffect(listProduct) {
         if (listProduct.isEmpty()) {
             productViewModel.fetchProduct()
         }
         if (listProtype.isEmpty()) {
             protypeViewModel.fetchProtype()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (listProduct.isEmpty()) {
+            productViewModel.fetchProduct()
         }
     }
 
@@ -140,6 +116,10 @@ fun Product(
     }
 
     LaunchedEffect(filteredProducts) {
+        visibleProducts = filteredProducts.filter { it.status.toInt() == 0 }
+    }
+
+    LaunchedEffect(visibleProducts) {
         visibleProducts = filteredProducts.filter { it.status.toInt() == 0 }
     }
     Box(modifier = Modifier.fillMaxSize()) {
@@ -235,6 +215,7 @@ fun Product(
                         produc.quantity,
                         1
                     )
+                    Log.d("guguyguygyu", pro.toString())
                     productViewModel.updateProduct(selectedId, pro)
 
 
@@ -245,7 +226,8 @@ fun Product(
 
         if (show) {
             productAdd(
-                onDismiss = { show = false },
+                onDismiss = { show = false
+                    productViewModel.fetchProduct()},
                 listProtype = listProtype,
                 productViewModel = ProViewModel()
             )
@@ -297,6 +279,9 @@ fun productAdd(onDismiss : ()-> Unit,listProtype : List<Protype>,productViewMode
             Button(onClick = {
                 val pro = Product("",name,price,avatar,infor,selectedCategory,quantity,0)
                 productViewModel.addProduct(pro)
+                productViewModel.fetchProduct()
+                // Cập nhật lại filteredProducts sau khi thêm sản phẩm
+
                 onDismiss()
             }) {
                 Text(text = "Kê")
@@ -409,24 +394,26 @@ fun dropMenu(
                 .clip(MaterialTheme.shapes.medium) // Bo góc
         ) {
             listProtype.forEach { protype ->
-                Box(modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)) {
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = protype.name,
-                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
-                            )
-                        },
-                        onClick = {
-                            selectedText = protype.name
-                            onCategorySelected(protype.name)
-                            expanded = false
-                        },
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp)
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp) // Khoảng cách giữa các mục
+                if (protype.status.toInt() == 0) {
+                    Box(modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = protype.name,
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
+                                )
+                            },
+                            onClick = {
+                                selectedText = protype.name
+                                onCategorySelected(protype.name)
+                                expanded = false
+                            },
+                            modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp) // Khoảng cách giữa các mục
 
-                    )
+                        )
+                    }
                 }
             }
         }

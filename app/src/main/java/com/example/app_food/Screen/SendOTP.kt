@@ -110,7 +110,7 @@ fun SendOTPScreen(navController: NavController,userViewModel: UserViewModel,forg
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextButton(onClick = {}) {
+            TextButton(onClick = {navController.navigateUp()}) {
                 Text(
                     text = "Quay lại",
                     color = Color(0xFF3E4A59),

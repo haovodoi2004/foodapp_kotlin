@@ -22,6 +22,22 @@ class UserViewModel : ViewModel(){
     val user = MutableLiveData<List<User>>()
     val userr=MutableLiveData<User?>()
 
+    fun fetchuser(){
+        viewModelScope.launch {
+            val respone = RetrofitInstance.api.getlistuser()
+            try {
+                if(respone.isNotEmpty()){
+                    user.postValue(respone)
+                }else{
+                    user.postValue(respone)
+                }
+            }catch (e:Exception){
+                e.printStackTrace()
+            }
+
+        }
+    }
+
     fun getuser(email: String){
         viewModelScope.launch {
             val respone = RetrofitInstance.api.getuserbyemail(email)

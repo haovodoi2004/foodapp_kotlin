@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.app_food.Model.Oder
 import com.example.app_food.ViewModel.OderViewModel
@@ -41,7 +42,7 @@ import com.example.app_food.ViewModel.ProViewModel
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun OderScreen(viewModel: OderViewModel,email : String,proViewModel: ProViewModel,modifier: Modifier){
+fun OderScreen(navController: NavController,viewModel: OderViewModel,email : String,proViewModel: ProViewModel,modifier: Modifier){
     val listoder by viewModel.oder.observeAsState(initial = emptyList())
 
         LaunchedEffect(listoder) {
@@ -58,7 +59,7 @@ fun OderScreen(viewModel: OderViewModel,email : String,proViewModel: ProViewMode
                 LazyColumn {
                     items(listoder, key = { it.id}) { item ->
                         if (item.emailuser == email) {
-                            oderItem(item, proViewModel)
+                            oderItem(item, proViewModel,navController)
                         }
                     }
                 }
@@ -68,7 +69,7 @@ fun OderScreen(viewModel: OderViewModel,email : String,proViewModel: ProViewMode
 }
 
 @Composable
-fun oderItem(order: Oder, proViewModel: ProViewModel) {
+fun oderItem(order: Oder, proViewModel: ProViewModel,navController: NavController) {
     val product = proViewModel.products.value[order.id_pro]
 
     // Fetch product details if not available
@@ -79,7 +80,9 @@ fun oderItem(order: Oder, proViewModel: ProViewModel) {
     }
 
     Card(
-        onClick = {},
+        onClick = {
+            navController.navigate("oderdetail/${order.id}/${order.emailuser}")
+        },
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 16.dp),
@@ -120,7 +123,7 @@ fun oderItem(order: Oder, proViewModel: ProViewModel) {
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Product: ${pr.name}",
+                        text = "Sản phẩm: ${pr.name}",
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color.Gray,
                         maxLines = 1,
@@ -128,23 +131,23 @@ fun oderItem(order: Oder, proViewModel: ProViewModel) {
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Total: $${order.all}",
+                        text = "Giá: $${order.all}",
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF4CAF50)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Date: ${order.date}",
+                        text = "Thời gian: ${order.date}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Gray
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Customer: ${order.emailuser}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
-                    )
+//                    Spacer(modifier = Modifier.height(4.dp))
+//                    Text(
+//                        text = "Customer: ${order.}",
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        color = Color.Gray
+//                    )
                 }
             }
         }

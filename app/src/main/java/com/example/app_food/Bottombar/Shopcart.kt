@@ -26,7 +26,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -36,6 +42,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -427,26 +434,46 @@ fun ShopCartItem(
 }
 
 @Composable
-fun DeleteDialog(onDismiss:()->Unit,pro : Product,shopcart: Shopcart,shopcartViewModel: ShopcartViewModel){
+fun DeleteDialog(onDismiss: () -> Unit, pro: Product, shopcart: Shopcart, shopcartViewModel: ShopcartViewModel) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Box(modifier = Modifier.fillMaxWidth()){
-                Text(text = "Thông báo")
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Thông báo",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
             }
         },
         text = {
-            Text(text = "Bạn có muốn xóa ${pro.name} khỏi giỏ hàng")
+            Text(
+                text = "Bạn có muốn xóa \"${pro.name}\" khỏi giỏ hàng?",
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth().padding(8.dp)
+            )
         },
         confirmButton = {
-            Button(onClick = {
-                shopcartViewModel.deleteShopcart(shopcart.id)
-            }) {
-                Text(text = "Ok")
+            Button(
+                onClick = {
+                    shopcartViewModel.deleteShopcart(shopcart.id)
+                    onDismiss()
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+            ) {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Xóa", color = Color.White)
             }
         },
-        dismissButton ={
-            Button(onClick = {onDismiss()}) {
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) {
+                Icon(imageVector = Icons.Default.Close, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(text = "Hủy")
             }
         }
@@ -455,77 +482,100 @@ fun DeleteDialog(onDismiss:()->Unit,pro : Product,shopcart: Shopcart,shopcartVie
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun OpenDialogShop(show: Boolean, onDissMiss: () -> Unit,pro : Product,shopcart : Shopcart,email: String,oderviewmodel : OderViewModel,ProViewModel : ProViewModel,shopcartViewModel : ShopcartViewModel ) {
+fun OpenDialogShop(
+    show: Boolean,
+    onDissMiss: () -> Unit,
+    pro: Product,
+    shopcart: Shopcart,
+    email: String,
+    oderviewmodel: OderViewModel,
+    ProViewModel: ProViewModel,
+    shopcartViewModel: ShopcartViewModel
+) {
     var name by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     val context = LocalContext.current
-    val deleteJob = remember { mutableStateOf(false) }
-    val formattedDateTime =
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+    val formattedDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+
     AlertDialog(
         onDismissRequest = onDissMiss,
-        title = {  Box(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = "Thông tin mua hàng",
-                modifier = Modifier.align(Alignment.Center), // Căn giữa cả chiều ngang và dọc
-                style = MaterialTheme.typography.titleMedium // Tùy chỉnh kiểu chữ (nếu muốn)
-            )
-        } },
+        title = {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Thông tin mua hàng",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
         text = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth().padding(16.dp)
+            ) {
+                AsyncImage(
+                    model = pro.avatar,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(12.dp))
+                )
+                Spacer(modifier = Modifier.height(16.dp))
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text(text = "Nhập họ và tên") },
-                    modifier = Modifier.fillMaxWidth(0.8f)
+                    leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = null) },
+                    modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
                     label = { Text(text = "Nhập số điện thoại") },
-                    modifier = Modifier.fillMaxWidth(0.8f)
+                    leadingIcon = { Icon(imageVector = Icons.Default.Phone, contentDescription = null) },
+                    modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = address,
                     onValueChange = { address = it },
                     label = { Text(text = "Nhập địa chỉ giao hàng") },
-                    modifier = Modifier.fillMaxWidth(0.8f)
+                    leadingIcon = { Icon(imageVector = Icons.Default.Home, contentDescription = null) },
+                    modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.size(20.dp))
-
+                Spacer(modifier = Modifier.height(10.dp))
             }
         },
-
         confirmButton = {
-            TextButton(
+            Button(
                 onClick = {
-                    val oder = Oder("",name,phone,pro.id,shopcart.quantity.toInt(),shopcart.all.toInt(),address,0,formattedDateTime, emailuser = email)
+                    val oder = Oder("", name, phone, pro.id, shopcart.quantity.toInt(), shopcart.all.toInt(), address, 0, formattedDateTime, emailuser = email)
                     oderviewmodel.addOder(oder)
-                    Log.d("Tag44444", "${pro.quantity}")
-                    val proo = Product(pro.id,pro.name,pro.price.toInt(),pro.avatar,pro.infor,pro.category,pro.quantity.toInt()-shopcart.quantity.toInt(),0)
-                    ProViewModel.updateProduct(pro.id, proo)
-                    Log.d("Tag555555555", "${proo.quantity}")
+                    val updatedProduct = Product(pro.id, pro.name, pro.price.toInt(), pro.avatar, pro.infor, pro.category, pro.quantity.toInt() - shopcart.quantity.toInt(), 0)
+                    ProViewModel.updateProduct(pro.id, updatedProduct)
                     ProViewModel.fetchProduct()
-                    val shopcart=Shopcart(shopcart.id,shopcart.idpro,shopcart.quantity,shopcart.all,shopcart.emailuser,1)
-                    shopcartViewModel.updateData(shopcart.id,shopcart)
-                    Toast.makeText(context," số lượng là ${pro.quantity.toInt()} giỏ hàng là ${shopcart.quantity.toInt()} = ${pro.quantity.toInt()-shopcart.quantity.toInt()}",Toast.LENGTH_LONG).show()
+                    val updatedShopcart = Shopcart(shopcart.id, shopcart.idpro, shopcart.quantity, shopcart.all, shopcart.emailuser, 1)
+                    shopcartViewModel.updateData(shopcart.id, updatedShopcart)
+                    Toast.makeText(context, "Đặt hàng thành công!", Toast.LENGTH_LONG).show()
                     onDissMiss()
                 },
-                colors = ButtonDefaults.buttonColors(
-                    contentColor = Color.White, containerColor = Color(
-                        0xFFF55928
-                    )
-                ),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF55928))
             ) {
-                Text(text = "Đặt hàng")
+                Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Đặt hàng", color = Color.White)
             }
-
         },
         dismissButton = {
-            Button(onClick = onDissMiss, colors = ButtonDefaults.buttonColors(contentColor = Color.White, containerColor = Color(0xFFF55928))) {
+            OutlinedButton(onClick = onDissMiss) {
+                Icon(imageVector = Icons.Default.Close, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(text = "Hủy")
             }
-        })
+        }
+    )
 }
-

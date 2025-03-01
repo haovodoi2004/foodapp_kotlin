@@ -17,6 +17,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Male
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -25,6 +31,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
@@ -44,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -264,7 +272,7 @@ fun itemUser(user: User, userViewModel: UserViewModel, list: List<User>) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = if (user.sex==0) "Nam" else "Nữ",
+                    text = if (user.sex == 0) "Nam" else "Nữ",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -272,18 +280,20 @@ fun itemUser(user: User, userViewModel: UserViewModel, list: List<User>) {
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            Button(
-                onClick = {
-                    val updatedUser = user.copy(status = if (user.status == 0) 1 else 0)
-                    userViewModel.updateUser(user.id.toString(), updatedUser)
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (user.status == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(text = if (user.status == 0) "Khóa" else "Mở khóa")
+            if (user.status != 2) {
+                Button(
+                    onClick = {
+                        val updatedUser = user.copy(status = if (user.status == 0) 1 else 0)
+                        userViewModel.updateUser(user.id.toString(), updatedUser)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (user.status == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(text = if (user.status == 0) "Khóa" else "Mở khóa")
+                }
             }
         }
     }
@@ -313,123 +323,166 @@ fun itemUser(user: User, userViewModel: UserViewModel, list: List<User>) {
 fun showUserDetail(onDismiss: () -> Unit, onUpdate: () -> Unit, user: User) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
-        title = { Text(text = "Thông tin chi tiết") },
+        title = { Text(text = "Thông tin chi tiết", style = MaterialTheme.typography.titleLarge) },
         text = {
-            Column {
-                Text(text = "${user.name}")
-                Text(text = "${user.email}")
-                Text(text = "${user.address}")
-                Text(text = "${user.password}")
-                Text(text = "${user.sex}")
+            Column(modifier = Modifier.padding(16.dp)) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.elevatedCardElevation()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        UserInfoRow(Icons.Default.Person, "Họ và tên", user.name)
+                        UserInfoRow(Icons.Default.Email, "Email", user.email)
+                        UserInfoRow(Icons.Default.Home, "Địa chỉ", user.address)
+                        UserInfoRow(Icons.Default.Lock, "Mật khẩu", "••••••••") // Ẩn mật khẩu
+                        UserInfoRow(Icons.Default.Male, "Giới tính", user.sex.toString())
+                    }
+                }
             }
         },
         confirmButton = {
             Button(onClick = {
                 onDismiss()
-                onUpdate() // Gọi hàm chuyển trạng thái hiển thị sang sửa
+                onUpdate()
             }) {
+                Icon(Icons.Default.Edit, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(text = "Sửa")
             }
         },
         dismissButton = {
-            Button(onClick = { onDismiss() }) {
+            OutlinedButton(onClick = { onDismiss() }) {
+                Icon(Icons.Default.Check, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(text = "Ok")
             }
         }
     )
 }
 
+@Composable
+fun UserInfoRow(icon: ImageVector, label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(icon, contentDescription = null, modifier = Modifier.size(24.dp))
+        Spacer(modifier = Modifier.width(8.dp))
+        Column {
+            Text(text = label, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+            Text(text = value, style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
 
 @Composable
-fun showUserUpdate(user: User, onDismiss: () -> Unit, userViewModel: UserViewModel, list : List<User>) {
+fun showUserUpdate(user: User, onDismiss: () -> Unit, userViewModel: UserViewModel, list: List<User>) {
     var name by remember { mutableStateOf(user.name) }
-    var adress by remember { mutableStateOf(user.address) }
+    var address by remember { mutableStateOf(user.address) }
     var sex by remember { mutableStateOf(user.sex) }
     var email by remember { mutableStateOf(user.email) }
     var pass by remember { mutableStateOf(user.password) }
-    var show by remember { mutableStateOf(false) }
-    var show1 by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+    var showEmailWarning by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    AlertDialog(onDismissRequest = { onDismiss() },
-        title = { Text(text = "Sửa thông tin", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
+
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = {
+            Text(
+                text = "Sửa thông tin",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
         text = {
-            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = {})
-                OutlinedTextField(value = adress, onValueChange = { adress = it }, label = {})
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Họ và tên") })
+                OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Địa chỉ") })
+                OutlinedTextField(value = sex.toString(), onValueChange = { sex = it.toInt() }, label = { Text("Giới tính") })
+                OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
                 OutlinedTextField(
-                    value = sex.toString(),
-                    onValueChange = { sex = it.toInt() },
-                    label = {})
-                OutlinedTextField(value = email, onValueChange = { email = it }, label = {})
-                OutlinedTextField(value = pass, onValueChange = { pass = it }, label = {})
+                    value = pass,
+                    onValueChange = {},
+                    label = { Text("Mật khẩu") },
+                    enabled = false // Vô hiệu hóa chỉnh sửa
+                )
             }
         },
         confirmButton = {
             Button(onClick = {
-                if(name.isEmpty()||adress.isEmpty()||email.isEmpty()||pass.isEmpty()){
-                    Toast.makeText(context,"Bạn không được bỏ trống dữ liệu", Toast.LENGTH_LONG).show()
-                }else{
-                    if(name!=user.name||email!=user.email||pass!=user.password){
-                        show=true
-                    }else{
-                        val user = User(user.id,email,pass,name,adress,sex,0)
-                        userViewModel.updateUser(user.id.toString(),user)
+                if (name.isEmpty() || address.isEmpty() || email.isEmpty() || pass.isEmpty()) {
+                    Toast.makeText(context, "Bạn không được bỏ trống dữ liệu", Toast.LENGTH_LONG).show()
+                } else {
+                    if (name != user.name || email != user.email || pass != user.password) {
+                        showDialog = true
+                    } else {
+                        val updatedUser = User(user.id, email, pass, name, address, sex, 0)
+                        userViewModel.updateUser(user.id.toString(), updatedUser)
                         onDismiss()
                     }
                 }
             }) {
-                Text(text = "Ok")
+                Text(text = "Lưu")
             }
         },
         dismissButton = {
-            Button(onClick = {onDismiss()}) {
+            OutlinedButton(onClick = { onDismiss() }) {
                 Text(text = "Hủy")
             }
-        })
+        }
+    )
 
-    if(show1){
+    if (showEmailWarning) {
         AlertDialog(
-            onDismissRequest = { show1 = false },
+            onDismissRequest = { showEmailWarning = false },
             title = { Text(text = "Thông báo") },
             text = { Text(text = "Email này đã được đăng ký vào tài khoản khác") },
             confirmButton = {
                 Button(onClick = {
-                    show1=false
+                    showEmailWarning = false
                     onDismiss()
                 }) {
                     Text(text = "Ok")
                 }
-            })
+            }
+        )
     }
 
-    if(show){
-        val user = User(user.id,email,pass,name,adress,sex,0)
+    if (showDialog) {
+        val updatedUser = User(user.id, email, pass, name, address, sex, 0)
         AlertDialog(
-            onDismissRequest = { show = false },
+            onDismissRequest = { showDialog = false },
             title = { Text(text = "Thông báo") },
             text = { Text(text = "Bạn đang thay đổi thông tin bảo mật của người dùng") },
             confirmButton = {
                 Button(onClick = {
-                    for(item in list){
-                        if(item.email==email.toString()){
-                            show1=true
-                            show=false
-                            break
-                        }else{
-                            userViewModel.updateUser(user.id.toString(),user)
-                            show=false
-                            onDismiss()
-                        }
+                    if (list.any { it.email == email }) {
+                        showEmailWarning = true
+                        showDialog = false
+                    } else {
+                        userViewModel.updateUser(user.id.toString(), updatedUser)
+                        showDialog = false
+                        onDismiss()
                     }
                 }) {
-                    Text(text = "Ok")
+                    Text(text = "Xác nhận")
                 }
             },
             dismissButton = {
-                Button(onClick = {show=false}) {
+                OutlinedButton(onClick = { showDialog = false }) {
                     Text(text = "Hủy")
                 }
-            })
+            }
+        )
     }
 }
 
